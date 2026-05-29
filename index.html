@@ -3,348 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Công cụ Khởi Tạo Email CSKH FPT Telecom</title>
+    <title>FPT Telecom Banner & Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 870px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: 0 auto; display: flex; gap: 20px; }
-        .form-section { flex: 1; max-width: 45%; }
-        .preview-section { flex: 1; max-width: 55%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 6px; display: flex; flex-direction: column; }
-        h2 { color: #f26f21; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-top: 0; font-size: 18px; }
-        .form-group { margin-bottom: 12px; }
-        .form-row { display: flex; gap: 10px; }
-        label { display: block; font-weight: bold; margin-bottom: 4px; color: #4a5568; font-size: 13px; }
-        input[type="text"], input[type="date"], select { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e0; border-radius: 4px; box-sizing: border-box; font-size: 13px; }
-        input:focus, select:focus { border-color: #f26f21; outline: none; box-shadow: 0 0 0 2px rgba(242, 111, 33, 0.2); }
-        .hidden { display: none; }
-        .btn-group { margin-top: 15px; display: flex; gap: 10px; }
-        button { flex: 1; padding: 10px; font-size: 14px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-primary { background-color: #f26f21; color: white; }
-        .btn-primary:hover { background-color: #d95a14; }
-        .btn-secondary { background-color: #edf2f7; color: #4a5568; }
-        .btn-secondary:hover { background-color: #e2e8f0; }
-        .output-header { font-weight: bold; color: #2d3748; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
-        #emailSubject { font-weight: bold; color: #f26f21; margin-bottom: 10px; padding: 8px; background: #fff; border: 1px dashed #cbd5e0; font-size: 13px; }
-        #emailContent { background: #fff; padding: 15px; border: 1px solid #e2e8f0; min-height: 320px; font-size: 14px; line-height: 1.6; flex-grow: 1; overflow-y: auto; color: #2d3748; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .copy-btn { cursor: pointer; transition: all 0.2s; }
+        .copy-btn:active { scale: 0.95; }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-8 flex flex-col items-center justify-center min-h-screen space-y-6">
 
-<div class="container">
-    <div class="form-section">
-        <h2>Thông Tin Khởi Tạo</h2>
-        
-        <div class="form-group">
-            <label for="templateType">Chọn mẫu email cấu trúc:</label>
-            <select id="templateType" onchange="toggleFields()">
-                <option value="failure">Mẫu 1: Thông báo sự cố / Báo hỏng</option>
-                <option value="payment">Mẫu 2: Thanh toán / Đáo hạn cước</option>
-            </select>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group" style="width: 35%;">
-                <label for="gender">Danh xưng:</label>
-                <select id="gender" onchange="generateEmail()">
-                    <option value="Anh">Anh</option>
-                    <option value="Chị">Chị</option>
-                </select>
+    <div class="max-w-5xl w-full bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+        <h3 class="text-blue-900 font-bold mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-calendar-days text-orange-500"></i> Tính toán kỳ hạn thanh toán (Bao gồm tháng hiện tại)
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Ngày bắt đầu:</label>
+                <input type="date" id="startDate" value="2026-06-01" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500">
             </div>
-            <div class="form-group" style="width: 65%;">
-                <label for="customerName">Tên khách hàng:</label>
-                <input type="text" id="customerName" placeholder="Nhập tên KH" oninput="generateEmail()">
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="contractId">Số hợp đồng:</label>
-            <input type="text" id="contractId" placeholder="Ví dụ: Hnh123456" oninput="generateEmail()">
-        </div>
-
-        <div class="form-group">
-            <label for="phone">Số điện thoại khách hàng:</label>
-            <input type="text" id="phone" placeholder="Ví dụ: 0912345689" oninput="generateEmail()">
-        </div>
-
-        <div class="form-group">
-            <label for="address">Địa chỉ:</label>
-            <input type="text" id="address" placeholder="Ví dụ: Phường Cầu Giấy, Hà Nội" oninput="generateEmail()">
-        </div>
-
-        <div id="failureFields">
-            <div class="form-group">
-                <label for="expectedTime">Thời gian xử lý dự kiến:</label>
-                <input type="text" id="expectedTime" placeholder="Ví dụ: 17:00 ngày 30/05/2026" oninput="generateEmail()">
-            </div>
-            <div class="form-group">
-                <label for="techName">Kỹ thuật viên:</label>
-                <input type="text" id="techName" placeholder="Ví dụ: Nguyễn Văn A" oninput="generateEmail()">
-            </div>
-        </div>
-
-        <div id="paymentFields" class="hidden">
-            <div class="form-row">
-                <div class="form-group" style="width: 50%;">
-                    <label for="cycleStart">Ngày bắt đầu trả trước:</label>
-                    <input type="date" id="cycleStart" onchange="generateEmail()">
-                </div>
-                <div class="form-group" style="width: 50%;">
-                    <label for="monthsCount">Gói cước trả trước:</label>
-                    <select id="monthsCount" onchange="generateEmail()">
-                        <option value="6">Trả trước 6 tháng</option>
-                        <option value="12">Trả trước 12 tháng (Tặng 1 tháng)</option>
-                    </select>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Kết quả kỳ hạn 6 tháng:</label>
+                <div id="resultRange" class="w-full p-2 bg-blue-50 border border-blue-200 rounded-lg text-sm font-medium text-blue-900 h-[38px] flex items-center">
+                    01/06/2026 - 30/11/2026
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-group" style="width: 100%;">
-                    <label for="amount">Số tiền thanh toán:</label>
-                    <input type="text" id="amount" placeholder="Ví dụ: 12000000" oninput="generateEmail()">
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="servicePackage">Gói dịch vụ:</label>
-                <input type="text" id="servicePackage" placeholder="Ví dụ: Giga, Sky, Meta..." oninput="generateEmail()">
-            </div>
-            <div class="form-group">
-                <label for="staffName">Tên nhân viên CSKH:</label>
-                <input type="text" id="staffName" placeholder="Nhập tên của bạn" oninput="generateEmail()">
+            <div>
+                <button onclick="calculate6Months()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm py-2 px-4 rounded-lg shadow transition">
+                    Tính lại hạn định
+                </button>
             </div>
         </div>
-
-        <div class="btn-group">
-            <button class="btn-secondary" onclick="resetForm()">Xóa nhập lại</button>
-            <button class="btn-primary" onclick="copyToClipboard()">Sao chép nội dung</button>
-        </div>
+        <p class="text-[11px] text-gray-500 mt-2 italic">* Giải thích: Nếu tính từ 01/06 thì đủ 6 tháng (Tháng 6, 7, 8, 9, 10, 11) sẽ kết thúc vào ngày cuối cùng của tháng 11 (`30/11/2026`).</p>
     </div>
 
-    <div class="preview-section">
-        <div class="output-header">Xem trước nội dung hiển thị</div>
-        <div id="emailSubject">Tiêu đề: </div>
-        <div id="emailContent">Vui lòng điền thông tin...</div>
+
+    <div class="max-w-5xl w-full bg-white rounded-xl shadow-lg border border-gray-100 p-6 md:p-8 space-y-6 relative">
+        
+        <div id="toast" class="absolute top-4 right-4 bg-gray-900 text-white text-xs py-1.5 px-3 rounded-lg opacity-0 transition-opacity duration-300 pointer-events-none z-50">
+            Đã sao chép nội dung thành công!
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            
+            <div class="md:col-span-3 flex flex-col justify-between h-full space-y-4 md:space-y-0">
+                <div>
+                    <div class="flex items-center space-x-1 font-bold text-2xl tracking-wide">
+                        <span class="text-orange-500">F</span><span class="text-green-600">P</span><span class="text-blue-600">T</span>
+                        <span class="text-blue-500 text-sm font-semibold ml-2">Telecom</span>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-600 mt-4 md:mt-12">
+                    <span class="text-blue-600 font-semibold"><i class="fa-regular fa-heart text-orange-400 mr-1"></i> Hi FPT</span> 
+                    — Ứng dụng chăm sóc khách hàng toàn diện của FPT Telecom
+                </div>
+            </div>
+
+            <div class="md:col-span-4 border-t md:border-t-0 md:border-l border-gray-200 pt-4 md:pt-0 md:pl-6 space-y-3">
+                <h2 class="text-blue-900 font-bold text-lg leading-tight uppercase">
+                    FPT TELECOM - CÔNG TY CỔ PHẦN VIỄN THÔNG FPT
+                </h2>
+                <p class="text-sm text-gray-700 font-medium">
+                    Đại diện chính thức <br>
+                    <span class="text-gray-500 font-normal">Trung tâm Chăm sóc Khách hàng</span>
+                </p>
+                
+                <div class="space-y-2 pt-2 text-sm text-gray-700">
+                    <div class="flex items-center space-x-2 copy-btn group" onclick="copyText('1900 6600')" title="Nhấn để copy số tổng đài">
+                        <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs group-hover:bg-orange-500 transition-colors">
+                            <i class="fa-solid fa-phone"></i>
+                        </span>
+                        <span class="font-semibold text-blue-600 group-hover:text-orange-600 transition-colors">
+                            1900 6600 <span class="text-gray-500 font-normal">(Tổng đài) <i class="fa-regular fa-copy ml-1 text-xs opacity-40 group-hover:opacity-100"></i></span>
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2 copy-btn group" onclick="copyText('hitech@fpt.com.vn')" title="Nhấn để copy email">
+                        <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs group-hover:bg-orange-500 transition-colors">
+                            <i class="fa-solid fa-envelope"></i>
+                        </span>
+                        <span class="group-hover:text-orange-600 transition-colors">
+                            hitech@fpt.com.vn <span class="text-gray-400 text-xs">(Email chính thức) <i class="fa-regular fa-copy ml-1 text-xs opacity-40 group-hover:opacity-100"></i></span>
+                        </span>
+                    </div>
+
+                    <div class="flex items-center space-x-2 copy-btn group" onclick="copyText('https://fpt.vn')" title="Nhấn để copy website">
+                        <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs group-hover:bg-orange-500 transition-colors">
+                            <i class="fa-solid fa-globe"></i>
+                        </span>
+                        <span class="text-blue-600 group-hover:text-orange-600 transition-colors">
+                            https://fpt.vn <i class="fa-regular fa-copy ml-1 text-xs opacity-40 group-hover:opacity-100"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="md:col-span-5 bg-blue-50/60 rounded-2xl p-4 border border-blue-100/50 flex flex-col sm:flex-row items-center gap-4 relative overflow-hidden">
+                <div class="absolute top-2 left-2 text-blue-300 text-xs opacity-50"><i class="fa-solid fa-star"></i></div>
+                <div class="absolute bottom-2 left-4 text-orange-400 text-xs opacity-70">⚡</div>
+
+                <div class="flex flex-col items-center flex-shrink-0">
+                    <p class="text-blue-900 font-bold text-xs mb-2 text-center">Quét QR để trải nghiệm ngay</p>
+                    <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-200 relative">
+                        <div class="w-28 h-28 bg-gray-100 flex flex-col items-center justify-center rounded border border-dashed border-gray-400 relative">
+                            <span class="text-[10px] text-gray-400 text-center px-1 font-mono">[ Mã QR ]</span>
+                            <div class="absolute inset-0 m-auto w-8 h-6 bg-blue-600 rounded flex items-center justify-center text-white font-bold text-xs shadow">Hi</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full space-y-2">
+                    <div class="bg-white border border-blue-100 p-2 rounded-xl shadow-sm flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white text-lg flex-shrink-0">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-blue-900 font-bold text-xs">Hỗ trợ nhanh</h4>
+                            <p class="text-[11px] text-gray-500">Gửi yêu cầu hỗ trợ ngay</p>
+                        </div>
+                    </div>
+                    <div class="bg-white border border-green-100 p-2 rounded-xl shadow-sm flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-lg bg-green-600 flex items-center justify-center text-white text-lg flex-shrink-0">
+                            <i class="fa-solid fa-credit-card"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-green-700 font-bold text-xs">Thanh toán nhanh</h4>
+                            <p class="text-[11px] text-gray-500">Thanh toán cước tiện lợi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="border-gray-200">
+
+        <div class="space-y-3">
+            <div class="flex items-start space-x-2">
+                <span class="text-blue-600 text-lg mt-0.5">🛡️</span>
+                <p class="text-gray-700 text-sm font-medium leading-relaxed">
+                    FPT Telecom cam kết đồng hành và cung cấp dịch vụ tốt nhất cho Quý khách. <br class="hidden sm:inline">
+                    Chúng tôi phục vụ 24/7 cho mọi yêu cầu.
+                </p>
+            </div>
+            
+            <div class="pt-2 text-sm text-gray-800">
+                <p class="italic text-gray-600">Trân trọng,</p>
+                <p class="font-bold text-blue-950">Ban Điều hành & Trung tâm CSKH FPT Telecom</p>
+            </div>
+        </div>
+
+        <div class="pt-4 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                <div class="flex items-center space-x-1 bg-gray-50 px-2 py-1 rounded border border-gray-200 font-semibold text-blue-600">
+                    <span class="bg-blue-600 text-white px-1 py-0.5 rounded text-[10px] mr-1">Hi</span> Tải ứng dụng Hi FPT
+                </div>
+                <a href="#" class="bg-black text-white px-3 py-1 rounded flex items-center space-x-2 hover:opacity-80 transition">
+                    <i class="fa-brands fa-apple text-base"></i>
+                    <div class="text-left leading-none">
+                        <span class="text-[8px] block opacity-60">Tải về trên</span>
+                        <span class="text-[10px] font-semibold block">App Store</span>
+                    </div>
+                </a>
+                <a href="#" class="bg-black text-white px-3 py-1 rounded flex items-center space-x-2 hover:opacity-80 transition">
+                    <i class="fa-brands fa-google-play text-xs text-green-400"></i>
+                    <div class="text-left leading-none">
+                        <span class="text-[8px] block opacity-60">TẢI NỘI DUNG TRÊN</span>
+                        <span class="text-[10px] font-semibold block">Google Play</span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <span class="text-[11px] font-medium text-gray-400">Kết nối với chúng tôi</span>
+                <a href="#" class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center hover:opacity-90"><i class="fa-brands fa-facebook-f text-xs"></i></a>
+                <a href="#" class="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center hover:opacity-90"><i class="fa-brands fa-youtube text-xs"></i></a>
+                <a href="#" class="w-6 h-6 rounded-full bg-blue-400 text-white flex items-center justify-center text-[10px] font-bold hover:opacity-90">Zalo</a>
+                <a href="#" class="w-6 h-6 rounded-full bg-gray-300 text-gray-700 flex items-center justify-center hover:opacity-90"><i class="fa-solid fa-globe text-xs"></i></a>
+                <a href="#" class="w-6 h-6 rounded-full bg-gray-300 text-gray-700 flex items-center justify-center hover:opacity-90"><i class="fa-solid fa-map-location-dot text-xs"></i></a>
+            </div>
+        </div>
+
     </div>
-</div>
 
-<script>
-    const QR_IMAGES = {
-        failure: "http://tools.manhcuongit.online/BAOHONGNHANH.jpg",
-        payment: "http://tools.manhcuongit.online/THANHTOANNHANH.jpg"
-    };
-
-    function toggleFields() {
-        const type = document.getElementById('templateType').value;
-        const failureFields = document.getElementById('failureFields');
-        const paymentFields = document.getElementById('paymentFields');
-        
-        if (type === 'failure') {
-            failureFields.classList.remove('hidden');
-            paymentFields.classList.add('hidden');
-        } else {
-            failureFields.classList.add('hidden');
-            paymentFields.classList.remove('hidden');
-        }
-        generateEmail();
-    }
-
-    function capitalizeFirstLetter(str) {
-        if (!str) return '';
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-
-    function formatCurrency(value) {
-        if (!value) return '....';
-        let cleanValue = value.toString().replace(/\D/g, '');
-        if (!cleanValue) return '....';
-        return new Intl.NumberFormat('vi-VN').format(cleanValue) + " Đ";
-    }
-
-    function getCalculatedCycleInfo() {
-        const startDateVal = document.getElementById('cycleStart').value;
-        const selection = document.getElementById('monthsCount').value;
-        
-        let labelText = "";
-        let monthsToAdd = 0;
-
-        if (selection === "6") {
-            labelText = "Kỳ hạn 6 tháng";
-            monthsToAdd = 6;
-        } else if (selection === "12") {
-            labelText = "Kỳ hạn 13 tháng";
-            monthsToAdd = 13;
-        }
-
-        if (!startDateVal) {
-            return `• <span style="font-weight: bold;">${labelText}:</span> Từ ../../.... đến ../../....`;
-        }
-
-        const startDate = new Date(startDateVal);
-        const endDate = new Date(startDateVal);
-        endDate.setMonth(startDate.getMonth() + monthsToAdd);
-
-        const formatBtn = (date) => {
-            let d = date.getDate().toString().padStart(2, '0');
-            let m = (date.getMonth() + 1).toString().padStart(2, '0');
-            let y = date.getFullYear();
-            return `${d}/${m}/${y}`;
-        };
-
-        return `• <span style="font-weight: bold;">${labelText}:</span> Từ ${formatBtn(startDate)} đến ${formatBtn(endDate)}`;
-    }
-
-    function generateEmail() {
-        const type = document.getElementById('templateType').value;
-        const gender = document.getElementById('gender').value;
-        const genderLower = gender.toLowerCase();
-        
-        const customerName = capitalizeFirstLetter(document.getElementById('customerName').value) || '[Tên KH]';
-        const contractId = capitalizeFirstLetter(document.getElementById('contractId').value) || '[Số hợp đồng]';
-        const phone = document.getElementById('phone').value || '[SĐT KH]';
-        const address = capitalizeFirstLetter(document.getElementById('address').value) || '...';
-        
-        const currentQrUrl = QR_IMAGES[type];
-        
-        let emailHtml = "";
-        let subject = "";
-
-        if (type === 'failure') {
-            const expectedTime = document.getElementById('expectedTime').value || '...';
-            const techName = capitalizeFirstLetter(document.getElementById('techName').value) || '....';
-
-            subject = `[Báo Hỏng] Ghi nhận xử lý sự cố đường truyền mạng - HĐ: ${contractId}`;
-            
-            emailHtml = `<div style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #2d3748; line-height: 1.6;">` +
-                `Thân chào ${gender} ${customerName},<br><br>` +
-                `Bên em đã ghi nhận vấn đề gián đoạn tại đường truyền [${contractId}] tại ${address} và sẽ cử kỹ thuật viên qua phục vụ trực tiếp tại nhà.<br><br>` +
+    <script>
+        // 1. Hàm Copy Text: Truyền thẳng chuỗi cần lấy sạch, không bóc tách từ DOM để tránh dính tiêu đề phụ
+        function copyText(cleanContent) {
+            navigator.clipboard.writeText(cleanContent).then(() => {
+                const toast = document.getElementById('toast');
+                toast.innerText = `Đã copy: ${cleanContent}`;
+                toast.classList.remove('opacity-0');
                 
-                `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 10px; margin-bottom: 10px;">` +
-                    `<tr>` +
-                        `<td width="65%" valign="middle" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #2d3748; line-height: 1.8; padding-right: 15px;">` +
-                            `• <span style="font-weight: bold;">Thời gian xử lý dự kiến:</span> ${expectedTime}<br>` +
-                            `• <span style="font-weight: bold;">Kỹ thuật viên:</span> ${techName}<br><br>` +
-                            `Chi tiết tiến độ xử lý và thông tin kỹ thuật viên, vui lòng xem tại ứng dụng <span style="font-weight: bold;">Hi FPT</span> <i>(quét hoặc chạm mã QR bên cạnh, đăng nhập bằng SĐT ${phone})</i>.` +
-                        `</td>` +
-                        `<td width="35%" align="center" valign="middle">` +
-                            `<img src="${currentQrUrl}" alt="Mã QR Hi FPT" width="160" style="display: block; max-width: 100%; height: auto; border: 1px solid #e2e8f0; padding: 5px; background: #fff;">` +
-                        `</td>` +
-                    `</tr>` +
-                `</table><br>` +
-                
-                `Lần tới khi cần báo hỏng hoặc yêu cầu hỗ trợ khác, ${genderLower} có thể gửi yêu cầu trực tiếp ngay trên <span style="font-weight: bold;">Ứng dụng Hi FPT</span> tại mục <span style="font-weight: bold;">"Hỗ trợ"</span> hoặc <span style="font-weight: bold;">"Báo hỏng nhanh"</span> mà không cần chờ đợi gọi lên tổng đài.<br><br>` +
-                `FPT Telecom cảm ơn ${genderLower} ${customerName} đã liên hệ ạ.<br><br>` +
-                `Trân trọng,<br>` +
-                `<span style="font-weight: bold;">Trung tâm CSKH FPT Telecom</span>` +
-                `</div>`;
-        } 
-        else if (type === 'payment') {
-            const amountInput = document.getElementById('amount').value;
-            const formattedAmount = formatCurrency(amountInput);
-            const servicePackage = capitalizeFirstLetter(document.getElementById('servicePackage').value) || '....';
-            const staffName = capitalizeFirstLetter(document.getElementById('staffName').value) || '[Tên nhân viên]';
-            const cycleInfoLine = getCalculatedCycleInfo();
-            const selection = document.getElementById('monthsCount').value;
-            const displayMonthText = (selection === "6") ? "6" : "12";
-
-            subject = `[Thông Báo] Nhắc gia hạn và Đáo hạn cước dịch vụ Internet - HĐ: ${contractId}`;
-            
-            emailHtml = `<div style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #2d3748; line-height: 1.6;">` +
-                `Thân chào ${gender} ${customerName},<br><br>` +
-                `Em là ${staffName} - CSKH FPT Telecom.<br><br>` +
-                `Hiện tại hợp đồng ${contractId} tại ${address} đã đến kỳ gia hạn trả trước.<br><br>` +
-                `Em gửi ${genderLower} thông tin thanh toán kỳ ${displayMonthText} tháng tiếp theo cho gói mới như sau:<br><br>` +
-                
-                `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 10px; margin-bottom: 10px;">` +
-                    `<tr>` +
-                        `<td width="65%" valign="middle" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #2d3748; line-height: 1.8; padding-right: 15px;">` +
-                            `• <span style="font-weight: bold;">Số tiền cần thanh toán:</span> ${formattedAmount}<br>` +
-                            `${cycleInfoLine}<br>` +
-                            `• <span style="font-weight: bold;">Gói dịch vụ:</span> ${servicePackage}<br><br>` +
-                            `Thanh toán nhanh, an toàn & dễ dàng kiểm tra tình trạng thanh toán ngay tại ứng dụng <span style="font-weight: bold;">Hi FPT</span> <i>(quét hoặc chạm mã QR bên cạnh, đăng nhập SĐT ${phone})</i>.` +
-                        `</td>` +
-                        `<td width="35%" align="center" valign="middle">` +
-                            `<img src="${currentQrUrl}" alt="Mã QR Thanh Toán" width="160" style="display: block; max-width: 100%; height: auto; border: 1px solid #e2e8f0; padding: 5px; background: #fff;">` +
-                        `</td>` +
-                    `</tr>` +
-                `</table><br>` +
-                
-                `Hoàn tất thanh toán, ${genderLower} ${customerName} sẽ được tặng <span style="font-weight: bold;">3000 gold vào tài khoản Khách hàng thân thiết</span> đấy ạ. ${gender} có thể sử dụng điểm tích lũy này để đổi các Evoucher hấp dẫn ngay trên ứng dụng Hi FPT tại mục <span style="font-weight: bold;">"Ưu đãi"</span>.<br><br>` +
-                `Khi cần báo hỏng hoặc yêu cầu hỗ trợ khác, ${genderLower} có thể gửi yêu cầu trực tiếp trên <span style="font-weight: bold;">Ứng dụng Hi FPT</span> tại mục <span style="font-weight: bold;">"Hỗ trợ"</span> hoặc <span style="font-weight: bold;">"Báo hỏng nhanh"</span> để được hỗ trợ nhanh chóng mà không cần gọi tổng đài ạ.<br><br>` +
-                `FPT Telecom cảm ơn ${genderLower} ${customerName} đã liên hệ ạ.<br><br>` +
-                `Trân trọng,<br>` +
-                `<span style="font-weight: bold;">Trung tâm CSKH FPT Telecom</span>` +
-                `</div>`;
-        }
-
-        document.getElementById('emailSubject').innerText = "Tiêu đề: " + subject;
-        document.getElementById('emailContent').innerHTML = emailHtml;
-    }
-
-    function copyToClipboard() {
-        const subject = document.getElementById('emailSubject').innerText;
-        const contentHtml = document.getElementById('emailContent').innerHTML;
-        const contentText = document.getElementById('emailContent').innerText;
-        
-        const fullHtml = `<div style="font-family: 'Segoe UI', Arial, sans-serif;"><p><span style="font-weight: bold;">${subject}</span></p>${contentHtml}</div>`;
-        const fullText = subject + "\n\n" + contentText;
-
-        // KIỂM TRA QUYỀN TRÌNH DUYỆT (TỰ ĐỘNG CHUYỂN ĐỔI FALLBACK NẾU CHẠY OFFLINE)
-        if (navigator.clipboard && window.ClipboardItem) {
-            const blobHtml = new Blob([fullHtml], { type: 'text/html' });
-            const blobText = new Blob([fullText], { type: 'text/plain' });
-
-            const data = [new ClipboardItem({
-                'text/html': blobHtml,
-                'text/plain': blobText
-            })];
-
-            navigator.clipboard.write(data).then(() => {
-                alert("Đã sao chép! Hãy dán (Ctrl+V) thẳng vào Outlook để giữ nguyên bố cục chữ in đậm và ảnh QR nằm bên phải.");
+                setTimeout(() => {
+                    toast.classList.add('opacity-0');
+                }, 2000);
             }).catch(err => {
-                // FALLBACK VỀ TEXT THUẦN NẾU TRÌNH DUYỆT CHẶN HTML
-                copyAsPlainText(fullText);
+                console.error('Lỗi khi sao chép: ', err);
             });
-        } else {
-            // FALLBACK CHO TRÌNH DUYỆT CŨ/MÔI TRƯỜNG KHÔNG BẢO MẬT
-            copyAsPlainText(fullText);
         }
-    }
 
-    function copyAsPlainText(text) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert("Đã sao chép dạng văn bản tĩnh (do môi trường bảo mật của trình duyệt chưa kích hoạt Rich-text).");
-            }).catch(err => {
-                alert("Không thể sao chép, vui lòng bôi đen vùng xem trước để copy thủ công.");
-            });
-        } else {
-            // Giải pháp cổ điển cuối cùng
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                alert("Đã sao chép nội dung dạng tĩnh thành công!");
-            } catch (err) {
-                alert("Lỗi sao chép hệ thống.");
-            }
-            document.body.removeChild(textArea);
+        // 2. Hàm xử lý logic 6 tháng (Bao gồm tháng bắt đầu)
+        function calculate6Months() {
+            const dateInput = document.getElementById('startDate').value;
+            if (!dateInput) return;
+
+            // Tạo object date từ Input (YYYY-MM-DD)
+            const start = new Date(dateInput);
+            
+            // Định dạng ngày bắt đầu kiểu Việt Nam (DD/MM/YYYY)
+            const startDay = String(start.getDate()).padStart(2, '0');
+            const startMonth = String(start.getMonth() + 1).padStart(2, '0');
+            const startYear = start.getFullYear();
+            const formattedStart = `${startDay}/${startMonth}/${startYear}`;
+
+            // LOGIC SỬA ĐỔI: Để tính 6 tháng gồm cả tháng hiện tại, ta chỉ tịnh tiến thêm 5 tháng nữa
+            // Ví dụ: Tháng 6 -> +5 -> Tháng 11.
+            let end = new Date(start.getFullYear(), start.getMonth() + 5, 1);
+            
+            // Chuyển ngày kết thúc về ngày CUỐI CÙNG của tháng mục tiêu đó bằng cách dùng tham số ngày = 0 ở tháng tiếp theo
+            let finalEndDate = new Date(end.getFullYear(), end.getMonth() + 1, 0);
+
+            // Định dạng ngày kết thúc (DD/MM/YYYY)
+            const endDay = String(finalEndDate.getDate()).padStart(2, '0');
+            const endMonth = String(finalEndDate.getMonth() + 1).padStart(2, '0');
+            const endYear = finalEndDate.getFullYear();
+            const formattedEnd = `${endDay}/${endMonth}/${endYear}`;
+
+            // Hiển thị ra giao diện
+            document.getElementById('resultRange').innerText = `${formattedStart} - ${formattedEnd}`;
         }
-    }
-
-    function resetForm() {
-        document.getElementById('contractId').value = '';
-        document.getElementById('customerName').value = '';
-        document.getElementById('phone').value = '';
-        document.getElementById('address').value = '';
-        document.getElementById('expectedTime').value = '';
-        document.getElementById('techName').value = '';
-        document.getElementById('cycleStart').value = '';
-        document.getElementById('amount').value = '';
-        document.getElementById('servicePackage').value = '';
-        generateEmail();
-    }
-
-    generateEmail();
-</script>
-
+    </script>
 </body>
 </html>
