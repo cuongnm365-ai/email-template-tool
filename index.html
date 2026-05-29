@@ -30,6 +30,7 @@
 <body>
 
 <div class="container">
+    <!-- KHUNG NHẬP LIỆU -->
     <div class="form-section">
         <h2>Thông Tin Khởi Tạo</h2>
         
@@ -66,10 +67,11 @@
         </div>
 
         <div class="form-group">
-            <label interpreters="address">Địa chỉ:</label>
+            <label for="address">Địa chỉ:</label>
             <input type="text" id="address" placeholder="Ví dụ: Phường Cầu Giấy, Hà Nội" oninput="generateEmail()">
         </div>
 
+        <!-- TRƯỜNG RIÊNG: MẪU BÁO HỎNG -->
         <div id="failureFields">
             <div class="form-group">
                 <label for="expectedTime">Thời gian xử lý dự kiến:</label>
@@ -81,6 +83,7 @@
             </div>
         </div>
 
+        <!-- TRƯỜNG RIÊNG: MẪU THANH TOÁN CƯỚC -->
         <div id="paymentFields" class="hidden">
             <div class="form-row">
                 <div class="form-group" style="width: 50%;">
@@ -117,6 +120,7 @@
         </div>
     </div>
 
+    <!-- KHUNG XEM TRƯỚC EMAIL -->
     <div class="preview-section">
         <div class="output-header">Xem trước nội dung hiển thị</div>
         <div id="emailSubject">Tiêu đề: </div>
@@ -125,9 +129,16 @@
 </div>
 
 <script>
+    // Hệ thống liên kết ảnh trực tiếp từ đường dẫn máy chủ của bạn
     const QR_IMAGES = {
         failure: "http://tools.manhcuongit.online/BAOHONGNHANH.jpg",
         payment: "http://tools.manhcuongit.online/THANHTOANNHANH.jpg"
+    };
+
+    // Hệ thống liên kết Deeplink tương ứng với từng hình ảnh
+    const DEEPLINKS = {
+        failure: "https://hi.fpt.vn/rev/lbq/P3M3JDZB",
+        payment: "https://hi.fpt.vn/rev/fbu/1dnN3BoM"
     };
 
     function toggleFields() {
@@ -157,7 +168,6 @@
         return new Intl.NumberFormat('vi-VN').format(cleanValue) + " Đ";
     }
 
-    // Thuật toán tính chu kỳ cước sửa đổi (Trừ đi 1 ngày kết thúc chu kỳ dương lịch)
     function getCalculatedCycleInfo() {
         const startDateVal = document.getElementById('cycleStart').value;
         const selection = document.getElementById('monthsCount').value;
@@ -180,9 +190,7 @@
         const startDate = new Date(startDateVal);
         const endDate = new Date(startDateVal);
         
-        // Cộng số tháng trước
         endDate.setMonth(startDate.getMonth() + monthsToAdd);
-        // Trừ đi 1 ngày chính xác theo lịch dương để tránh nhảy thừa tháng
         endDate.setDate(endDate.getDate() - 1);
 
         const formatBtn = (date) => {
@@ -206,6 +214,7 @@
         const address = capitalizeFirstLetter(document.getElementById('address').value) || '...';
         
         const currentQrUrl = QR_IMAGES[type];
+        const currentDeeplink = DEEPLINKS[type];
         
         let emailHtml = "";
         let subject = "";
@@ -228,7 +237,7 @@
                             `Chi tiết tiến độ xử lý và thông tin kỹ thuật viên, vui lòng xem tại ứng dụng <span style="font-weight: bold;">Hi FPT</span> <i>(quét hoặc chạm mã QR bên cạnh, đăng nhập bằng SĐT ${phone})</i>.` +
                         `</td>` +
                         `<td width="35%" align="center" valign="middle">` +
-                            `<img src="${currentQrUrl}" alt="Mã QR Hi FPT" width="160" style="display: block; max-width: 100%; height: auto; border: 1px solid #e2e8f0; padding: 5px; background: #fff;">` +
+                            `<a href="${currentDeeplink}" target="_blank" style="text-decoration: none;"><img src="${currentQrUrl}" alt="Mã QR Hi FPT" width="160" style="display: block; max-width: 100%; height: auto; border: 1px solid #e2e8f0; padding: 5px; background: #fff;"></a>` +
                         `</td>` +
                     `</tr>` +
                 `</table><br>` +
@@ -265,7 +274,7 @@
                             `Thanh toán nhanh, an toàn & dễ dàng kiểm tra tình trạng thanh toán ngay tại ứng dụng <span style="font-weight: bold;">Hi FPT</span> <i>(quét hoặc chạm mã QR bên cạnh, đăng nhập SĐT ${phone})</i>.` +
                         `</td>` +
                         `<td width="35%" align="center" valign="middle">` +
-                            `<img src="${currentQrUrl}" alt="Mã QR Thanh Toán" width="160" style="display: block; max-width: 100%; height: auto; border: 1px solid #e2e8f0; padding: 5px; background: #fff;">` +
+                            `<a href="${currentDeeplink}" target="_blank" style="text-decoration: none;"><img src="${currentQrUrl}" alt="Mã QR Thanh Toán" width="160" style="display: block; max-width: 100%; height: auto; border: 1px solid #e2e8f0; padding: 5px; background: #fff;"></a>` +
                         `</td>` +
                     `</tr>` +
                 `</table><br>` +
@@ -282,12 +291,10 @@
         document.getElementById('emailContent').innerHTML = emailHtml;
     }
 
-    // Hàm sao chép tối ưu: Chỉ lấy phần nội dung (Thân email), lược bỏ Tiêu đề
     function copyToClipboard() {
         const contentHtml = document.getElementById('emailContent').innerHTML;
         const contentText = document.getElementById('emailContent').innerText;
         
-        // Chỉ lấy cấu trúc vùng nội dung email
         const fullHtml = `<div style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 14.5px; color: #2d3748;">${contentHtml}</div>`;
         const fullText = contentText;
 
@@ -301,12 +308,11 @@
             })];
 
             navigator.clipboard.write(data).then(() => {
-                alert("Đã sao chép nội dung email! Hãy dán (Ctrl+V) thẳng vào Outlook.");
+                alert("Đã sao chép nội dung email! Hãy dán (Ctrl+V) thẳng vào Outlook. Mã QR hiện đã được nhúng kèm Deeplink ẩn.");
             }).catch(err => {
                 copyAsPlainText(fullText);
             });
         } else {
-            // Hướng dẫn fallback khi dùng offline
             const textArea = document.createElement("textarea");
             textArea.value = fullText;
             document.body.appendChild(textArea);
@@ -314,7 +320,7 @@
             document.execCommand('copy');
             document.body.removeChild(textArea);
             
-            alert("Đã copy dạng văn bản tĩnh.\n\nĐể dán sang Outlook có đủ IN ĐẬM và HÌNH ẢNH ở môi trường offline, bạn hãy dùng chuột bôi đen vùng Xem trước rồi nhấn Ctrl+C nhé!");
+            alert("Đã copy dạng văn bản tĩnh.\n\nĐể dán sang Outlook có đủ IN ĐẬM, HÌNH ẢNH và DEEPLINK ở môi trường offline, bạn hãy dùng chuột bôi đen vùng Xem trước rồi nhấn Ctrl+C nhé!");
         }
     }
 
