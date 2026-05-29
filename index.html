@@ -125,7 +125,6 @@
 </div>
 
 <script>
-    // Hệ thống liên kết ảnh trực tiếp từ đường dẫn máy chủ của bạn
     const QR_IMAGES = {
         failure: "http://tools.manhcuongit.online/BAOHONGNHANH.jpg",
         payment: "http://tools.manhcuongit.online/THANHTOANNHANH.jpg"
@@ -174,7 +173,7 @@
         }
 
         if (!startDateVal) {
-            return `• <b>${labelText}:</b> Từ ../../.... đến ../../....`;
+            return `• <span style="font-weight: bold;">${labelText}:</span> Từ ../../.... đến ../../....`;
         }
 
         const startDate = new Date(startDateVal);
@@ -188,7 +187,7 @@
             return `${d}/${m}/${y}`;
         };
 
-        return `• <b>${labelText}:</b> Từ ${formatBtn(startDate)} đến ${formatBtn(endDate)}`;
+        return `• <span style="font-weight: bold;">${labelText}:</span> Từ ${formatBtn(startDate)} đến ${formatBtn(endDate)}`;
     }
 
     function generateEmail() {
@@ -219,9 +218,9 @@
                 `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 10px; margin-bottom: 10px;">` +
                     `<tr>` +
                         `<td width="65%" valign="middle" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #2d3748; line-height: 1.8; padding-right: 15px;">` +
-                            `• <b>Thời gian xử lý dự kiến:</b> ${expectedTime}<br>` +
-                            `• <b>Kỹ thuật viên:</b> ${techName}<br><br>` +
-                            `Chi tiết tiến độ xử lý và thông tin kỹ thuật viên, vui lòng xem tại ứng dụng <b>Hi FPT</b> <i>(quét hoặc chạm mã QR bên cạnh, đăng nhập bằng SĐT ${phone})</i>.` +
+                            `• <span style="font-weight: bold;">Thời gian xử lý dự kiến:</span> ${expectedTime}<br>` +
+                            `• <span style="font-weight: bold;">Kỹ thuật viên:</span> ${techName}<br><br>` +
+                            `Chi tiết tiến độ xử lý và thông tin kỹ thuật viên, vui lòng xem tại ứng dụng <span style="font-weight: bold;">Hi FPT</span> <i>(quét hoặc chạm mã QR bên cạnh, đăng nhập bằng SĐT ${phone})</i>.` +
                         `</td>` +
                         `<td width="35%" align="center" valign="middle">` +
                             `<img src="${currentQrUrl}" alt="Mã QR Hi FPT" width="160" style="display: block; max-width: 100%; height: auto; border: 1px solid #e2e8f0; padding: 5px; background: #fff;">` +
@@ -229,10 +228,10 @@
                     `</tr>` +
                 `</table><br>` +
                 
-                `Lần tới khi cần báo hỏng hoặc yêu cầu hỗ trợ khác, ${genderLower} có thể gửi yêu cầu trực tiếp ngay trên <b>Ứng dụng Hi FPT</b> tại mục <b>"Hỗ trợ"</b> hoặc <b>"Báo hỏng nhanh"</b> mà không cần chờ đợi gọi lên tổng đài.<br><br>` +
+                `Lần tới khi cần báo hỏng hoặc yêu cầu hỗ trợ khác, ${genderLower} có thể gửi yêu cầu trực tiếp ngay trên <span style="font-weight: bold;">Ứng dụng Hi FPT</span> tại mục <span style="font-weight: bold;">"Hỗ trợ"</span> hoặc <span style="font-weight: bold;">"Báo hỏng nhanh"</span> mà không cần chờ đợi gọi lên tổng đài.<br><br>` +
                 `FPT Telecom cảm ơn ${genderLower} ${customerName} đã liên hệ ạ.<br><br>` +
                 `Trân trọng,<br>` +
-                `<b>Trung tâm CSKH FPT Telecom</b>` +
+                `<span style="font-weight: bold;">Trung tâm CSKH FPT Telecom</span>` +
                 `</div>`;
         } 
         else if (type === 'payment') {
@@ -255,10 +254,10 @@
                 `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 10px; margin-bottom: 10px;">` +
                     `<tr>` +
                         `<td width="65%" valign="middle" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #2d3748; line-height: 1.8; padding-right: 15px;">` +
-                            `• <b>Số tiền cần thanh toán:</b> ${formattedAmount}<br>` +
+                            `• <span style="font-weight: bold;">Số tiền cần thanh toán:</span> ${formattedAmount}<br>` +
                             `${cycleInfoLine}<br>` +
-                            `• <b>Gói dịch vụ:</b> ${servicePackage}<br><br>` +
-                            `Thanh toán nhanh, an toàn & dễ dàng kiểm tra tình trạng thanh toán ngay tại ứng dụng <b>Hi FPT</b> <i>(quét hoặc chạm mã QR bên cạnh, đăng nhập SĐT ${phone})</i>.` +
+                            `• <span style="font-weight: bold;">Gói dịch vụ:</span> ${servicePackage}<br><br>` +
+                            `Thanh toán nhanh, an toàn & dễ dàng kiểm tra tình trạng thanh toán ngay tại ứng dụng <span style="font-weight: bold;">Hi FPT</span> <i>(quét hoặc chạm mã QR bên cạnh, đăng nhập SĐT ${phone})</i>.` +
                         `</td>` +
                         `<td width="35%" align="center" valign="middle">` +
                             `<img src="${currentQrUrl}" alt="Mã QR Thanh Toán" width="160" style="display: block; max-width: 100%; height: auto; border: 1px solid #e2e8f0; padding: 5px; background: #fff;">` +
@@ -266,11 +265,11 @@
                     `</tr>` +
                 `</table><br>` +
                 
-                `Hoàn tất thanh toán, ${genderLower} ${customerName} sẽ được tặng <b>3000 gold vào tài khoản Khách hàng thân thiết</b> đấy ạ. ${gender} có thể sử dụng điểm tích lũy này để đổi các Evoucher hấp dẫn ngay trên ứng dụng Hi FPT tại mục <b>"Ưu đãi"</b>.<br><br>` +
-                `Khi cần báo hỏng hoặc yêu cầu hỗ trợ khác, ${genderLower} có thể gửi yêu cầu trực tiếp trên <b>Ứng dụng Hi FPT</b> tại mục <b>"Hỗ trợ"</b> hoặc <b>"Báo hỏng nhanh"</b> để được hỗ trợ nhanh chóng mà không cần gọi tổng đài ạ.<br><br>` +
+                `Hoàn tất thanh toán, ${genderLower} ${customerName} sẽ được tặng <span style="font-weight: bold;">3000 gold vào tài khoản Khách hàng thân thiết</span> đấy ạ. ${gender} có thể sử dụng điểm tích lũy này để đổi các Evoucher hấp dẫn ngay trên ứng dụng Hi FPT tại mục <span style="font-weight: bold;">"Ưu đãi"</span>.<br><br>` +
+                `Khi cần báo hỏng hoặc yêu cầu hỗ trợ khác, ${genderLower} có thể gửi yêu cầu trực tiếp trên <span style="font-weight: bold;">Ứng dụng Hi FPT</span> tại mục <span style="font-weight: bold;">"Hỗ trợ"</span> hoặc <span style="font-weight: bold;">"Báo hỏng nhanh"</span> để được hỗ trợ nhanh chóng mà không cần gọi tổng đài ạ.<br><br>` +
                 `FPT Telecom cảm ơn ${genderLower} ${customerName} đã liên hệ ạ.<br><br>` +
                 `Trân trọng,<br>` +
-                `<b>Trung tâm CSKH FPT Telecom</b>` +
+                `<span style="font-weight: bold;">Trung tâm CSKH FPT Telecom</span>` +
                 `</div>`;
         }
 
@@ -283,23 +282,52 @@
         const contentHtml = document.getElementById('emailContent').innerHTML;
         const contentText = document.getElementById('emailContent').innerText;
         
-        const fullHtml = `<div style="font-family: 'Segoe UI', Arial, sans-serif;"><p><b>${subject}</b></p>${contentHtml}</div>`;
+        const fullHtml = `<div style="font-family: 'Segoe UI', Arial, sans-serif;"><p><span style="font-weight: bold;">${subject}</span></p>${contentHtml}</div>`;
         const fullText = subject + "\n\n" + contentText;
 
-        const blobHtml = new Blob([fullHtml], { type: 'text/html' });
-        const blobText = new Blob([fullText], { type: 'text/plain' });
+        // KIỂM TRA QUYỀN TRÌNH DUYỆT (TỰ ĐỘNG CHUYỂN ĐỔI FALLBACK NẾU CHẠY OFFLINE)
+        if (navigator.clipboard && window.ClipboardItem) {
+            const blobHtml = new Blob([fullHtml], { type: 'text/html' });
+            const blobText = new Blob([fullText], { type: 'text/plain' });
 
-        const data = [new ClipboardItem({
-            'text/html': blobHtml,
-            'text/plain': blobText
-        })];
+            const data = [new ClipboardItem({
+                'text/html': blobHtml,
+                'text/plain': blobText
+            })];
 
-        navigator.clipboard.write(data).then(() => {
-            alert("Đã sao chép! Hãy dán (Ctrl+V) thẳng vào Outlook để giữ nguyên bố cục chữ in đậm và ảnh QR nằm bên phải.");
-        }).catch(err => {
-            navigator.clipboard.writeText(fullText);
-            alert("Đã sao chép dữ liệu dạng văn bản thuần.");
-        });
+            navigator.clipboard.write(data).then(() => {
+                alert("Đã sao chép! Hãy dán (Ctrl+V) thẳng vào Outlook để giữ nguyên bố cục chữ in đậm và ảnh QR nằm bên phải.");
+            }).catch(err => {
+                // FALLBACK VỀ TEXT THUẦN NẾU TRÌNH DUYỆT CHẶN HTML
+                copyAsPlainText(fullText);
+            });
+        } else {
+            // FALLBACK CHO TRÌNH DUYỆT CŨ/MÔI TRƯỜNG KHÔNG BẢO MẬT
+            copyAsPlainText(fullText);
+        }
+    }
+
+    function copyAsPlainText(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Đã sao chép dạng văn bản tĩnh (do môi trường bảo mật của trình duyệt chưa kích hoạt Rich-text).");
+            }).catch(err => {
+                alert("Không thể sao chép, vui lòng bôi đen vùng xem trước để copy thủ công.");
+            });
+        } else {
+            // Giải pháp cổ điển cuối cùng
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert("Đã sao chép nội dung dạng tĩnh thành công!");
+            } catch (err) {
+                alert("Lỗi sao chép hệ thống.");
+            }
+            document.body.removeChild(textArea);
+        }
     }
 
     function resetForm() {
