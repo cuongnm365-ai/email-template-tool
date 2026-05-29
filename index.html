@@ -6,9 +6,9 @@
     <title>Công cụ Khởi Tạo Email CSKH FPT Telecom</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 870px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: 0 auto; display: flex; gap: 20px; }
-        .form-section { flex: 1; max-width: 45%; }
-        .preview-section { flex: 1; max-width: 55%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 6px; display: flex; flex-direction: column; }
+        .container { max-width: 920px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: 0 auto; display: flex; gap: 20px; }
+        .form-section { flex: 1; max-width: 40%; }
+        .preview-section { flex: 1; max-width: 60%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 6px; display: flex; flex-direction: column; }
         h2 { color: #f26f21; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-top: 0; font-size: 18px; }
         .form-group { margin-bottom: 12px; }
         .form-row { display: flex; gap: 10px; }
@@ -23,14 +23,14 @@
         .btn-secondary { background-color: #edf2f7; color: #4a5568; }
         .btn-secondary:hover { background-color: #e2e8f0; }
         .output-header { font-weight: bold; color: #2d3748; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
-        #emailSubject { font-weight: bold; color: #f26f21; margin-bottom: 10px; padding: 8px; background: #fff; border: 1px dashed #cbd5e0; font-size: 13px; }
-        #emailContent { background: #fff; padding: 15px; border: 1px solid #e2e8f0; min-height: 320px; font-size: 14px; line-height: 1.6; flex-grow: 1; overflow-y: auto; color: #2d3748; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        #subjectWrapper { font-size: 13px; margin-bottom: 10px; padding: 8px; background: #fff; border: 1px dashed #cbd5e0; }
+        #emailSubject { font-weight: bold; color: #f26f21; }
+        #emailContent { background: #fff; padding: 15px; border: 1px solid #e2e8f0; min-height: 350px; font-size: 14px; line-height: 1.6; flex-grow: 1; overflow-y: auto; color: #2d3748; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- KHUNG NHẬP LIỆU -->
     <div class="form-section">
         <h2>Thông Tin Khởi Tạo</h2>
         
@@ -39,103 +39,101 @@
             <select id="templateType" onchange="toggleFields()">
                 <option value="failure">Mẫu 1: Thông báo sự cố / Báo hỏng</option>
                 <option value="payment">Mẫu 2: Thanh toán / Đáo hạn cước</option>
+                <option value="signature_test">[Mẫu Test Không Sử Dụng]</option>
             </select>
         </div>
 
-        <div class="form-row">
-            <div class="form-group" style="width: 35%;">
-                <label for="gender">Danh xưng:</label>
-                <select id="gender" onchange="generateEmail()">
-                    <option value="Anh">Anh</option>
-                    <option value="Chị">Chị</option>
-                </select>
-            </div>
-            <div class="form-group" style="width: 65%;">
-                <label for="customerName">Tên khách hàng:</label>
-                <input type="text" id="customerName" placeholder="Nhập tên KH" oninput="generateEmail()">
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="contractId">Số hợp đồng:</label>
-            <input type="text" id="contractId" placeholder="Ví dụ: Hnh123456" oninput="generateEmail()">
-        </div>
-
-        <div class="form-group">
-            <label for="phone">Số điện thoại khách hàng:</label>
-            <input type="text" id="phone" placeholder="Ví dụ: 0912345689" oninput="generateEmail()">
-        </div>
-
-        <div class="form-group">
-            <label for="address">Địa chỉ:</label>
-            <input type="text" id="address" placeholder="Ví dụ: Phường Cầu Giấy, Hà Nội" oninput="generateEmail()">
-        </div>
-
-        <!-- TRƯỜNG RIÊNG: MẪU BÁO HỎNG -->
-        <div id="failureFields">
-            <div class="form-group">
-                <label for="expectedTime">Thời gian xử lý dự kiến:</label>
-                <input type="text" id="expectedTime" placeholder="Ví dụ: 17:00 ngày 30/05/2026" oninput="generateEmail()">
-            </div>
-            <div class="form-group">
-                <label for="techName">Kỹ thuật viên:</label>
-                <input type="text" id="techName" placeholder="Ví dụ: Nguyễn Văn A" oninput="generateEmail()">
-            </div>
-        </div>
-
-        <!-- TRƯỜNG RIÊNG: MẪU THANH TOÁN CƯỚC -->
-        <div id="paymentFields" class="hidden">
+        <div id="dynamicInputs">
             <div class="form-row">
-                <div class="form-group" style="width: 50%;">
-                    <label for="cycleStart">Ngày bắt đầu trả trước tiếp tục:</label>
-                    <input type="date" id="cycleStart" onchange="generateEmail()">
-                </div>
-                <div class="form-group" style="width: 50%;">
-                    <label for="monthsCount">Gói cước trả trước:</label>
-                    <select id="monthsCount" onchange="generateEmail()">
-                        <option value="6">Trả trước 6 tháng</option>
-                        <option value="12">Trả trước 12 tháng (Tặng 1 tháng)</option>
+                <div class="form-group" style="width: 35%;">
+                    <label for="gender">Danh xưng:</label>
+                    <select id="gender" onchange="generateEmail()">
+                        <option value="Anh">Anh</option>
+                        <option value="Chị">Chị</option>
                     </select>
                 </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group" style="width: 100%;">
-                    <label for="amount">Số tiền thanh toán:</label>
-                    <input type="text" id="amount" placeholder="Ví dụ: 12000000" oninput="generateEmail()">
+                <div class="form-group" style="width: 65%;">
+                    <label for="customerName">Tên khách hàng:</label>
+                    <input type="text" id="customerName" placeholder="Nhập tên KH" oninput="generateEmail()">
                 </div>
             </div>
+
             <div class="form-group">
-                <label for="servicePackage">Gói dịch vụ:</label>
-                <input type="text" id="servicePackage" placeholder="Ví dụ: Giga, Sky, Meta..." oninput="generateEmail()">
+                <label for="contractId">Số hợp đồng:</label>
+                <input type="text" id="contractId" placeholder="Ví dụ: Hnh123456" oninput="generateEmail()">
             </div>
+
             <div class="form-group">
-                <label for="staffName">Tên nhân viên CSKH:</label>
-                <input type="text" id="staffName" placeholder="Nhập tên của bạn" oninput="generateEmail()">
+                <label for="phone">Số điện thoại khách hàng:</label>
+                <input type="text" id="phone" placeholder="Ví dụ: 0912345689" oninput="generateEmail()">
+            </div>
+
+            <div class="form-group">
+                <label for="address">Địa chỉ:</label>
+                <input type="text" id="address" placeholder="Ví dụ: Phường Cầu Giấy, Hà Nội" oninput="generateEmail()">
+            </div>
+
+            <div id="failureFields">
+                <div class="form-group">
+                    <label for="expectedTime">Thời gian xử lý dự kiến:</label>
+                    <input type="text" id="expectedTime" placeholder="Ví dụ: 17:00 ngày 30/05/2026" oninput="generateEmail()">
+                </div>
+                <div class="form-group">
+                    <label for="techName">Kỹ thuật viên:</label>
+                    <input type="text" id="techName" placeholder="Ví dụ: Nguyễn Văn A" oninput="generateEmail()">
+                </div>
+            </div>
+
+            <div id="paymentFields" class="hidden">
+                <div class="form-row">
+                    <div class="form-group" style="width: 50%;">
+                        <label for="cycleStart">Ngày bắt đầu trả trước tiếp tục:</label>
+                        <input type="date" id="cycleStart" onchange="generateEmail()">
+                    </div>
+                    <div class="form-group" style="width: 50%;">
+                        <label for="monthsCount">Gói cước trả trước:</label>
+                        <select id="monthsCount" onchange="generateEmail()">
+                            <option value="6">Trả trước 6 tháng</option>
+                            <option value="12">Trả trước 12 tháng (Tặng 1 tháng)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="width: 100%;">
+                        <label for="amount">Số tiền thanh toán:</label>
+                        <input type="text" id="amount" placeholder="Ví dụ: 12000000" oninput="generateEmail()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="servicePackage">Gói dịch vụ:</label>
+                    <input type="text" id="servicePackage" placeholder="Ví dụ: Giga, Sky, Meta..." oninput="generateEmail()">
+                </div>
+                <div class="form-group">
+                    <label for="staffName">Tên nhân viên CSKH:</label>
+                    <input type="text" id="staffName" placeholder="Nhập tên của bạn" oninput="generateEmail()">
+                </div>
             </div>
         </div>
 
         <div class="btn-group">
             <button class="btn-secondary" onclick="resetForm()">Xóa nhập lại</button>
-            <button class="btn-primary" onclick="copyToClipboard()">**Sao chép nội dung**</button>
+            <button class="btn-primary" onclick="copyToClipboard()">Sao chép nội dung</button>
         </div>
     </div>
 
-    <!-- KHUNG XEM TRƯỚC EMAIL -->
     <div class="preview-section">
         <div class="output-header">Xem trước nội dung hiển thị</div>
-        <div id="emailSubject">Tiêu đề: </div>
+        <div id="subjectWrapper"><b>Tiêu đề:</b> <span id="emailSubject"></span></div>
         <div id="emailContent">Vui lòng điền thông tin...</div>
     </div>
 </div>
 
 <script>
-    // Hệ thống liên kết ảnh trực tiếp từ đường dẫn máy chủ của bạn
     const QR_IMAGES = {
         failure: "http://tools.manhcuongit.online/BAOHONGNHANH.jpg",
         payment: "http://tools.manhcuongit.online/THANHTOANNHANH.jpg"
     };
 
-    // Hệ thống liên kết Deeplink tương ứng với từng hình ảnh
     const DEEPLINKS = {
         failure: "https://hi.fpt.vn/rev/lbq/P3M3JDZB",
         payment: "https://hi.fpt.vn/rev/fbu/1dnN3BoM"
@@ -143,15 +141,24 @@
 
     function toggleFields() {
         const type = document.getElementById('templateType').value;
+        const dynamicInputs = document.getElementById('dynamicInputs');
         const failureFields = document.getElementById('failureFields');
         const paymentFields = document.getElementById('paymentFields');
+        const subjectWrapper = document.getElementById('subjectWrapper');
         
-        if (type === 'failure') {
-            failureFields.classList.remove('hidden');
-            paymentFields.classList.add('hidden');
+        if (type === 'signature_test') {
+            dynamicInputs.classList.add('hidden');
+            subjectWrapper.classList.add('hidden');
         } else {
-            failureFields.classList.add('hidden');
-            paymentFields.classList.remove('hidden');
+            dynamicInputs.classList.remove('hidden');
+            subjectWrapper.classList.remove('hidden');
+            if (type === 'failure') {
+                failureFields.classList.remove('hidden');
+                paymentFields.classList.add('hidden');
+            } else {
+                failureFields.classList.add('hidden');
+                paymentFields.classList.remove('hidden');
+            }
         }
         generateEmail();
     }
@@ -205,14 +212,183 @@
 
     function generateEmail() {
         const type = document.getElementById('templateType').value;
+        
+        if (type === 'signature_test') {
+            document.getElementById('emailSubject').innerText = "";
+            // Đổ toàn bộ code chữ ký test của bạn vào khung preview
+            document.getElementById('emailContent').innerHTML = 
+                `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width: 800px; background-color: #f7f9fc; border-radius: 16px; border: 1px solid #e2e8f0; font-family: 'Segoe UI', Arial, sans-serif; border-collapse: separate;">` +
+                    `<tr>` +
+                        `<td style="padding: 24px;">` +
+                            `<table cellpadding="0" cellspacing="0" border="0" width="100%">` +
+                                `<tr>` +
+                                    `<td align="center" style="padding-bottom: 20px;">` +
+                                        `<table cellpadding="0" cellspacing="0" border="0">` +
+                                            `<tr>` +
+                                                `<td valign="middle" style="padding-right: 12px;">` +
+                                                    `<div style="background-color: #1e3a8a; width: 24px; height: 38px; border-radius: 5px; border: 2px solid #1e3a8a; position: relative;">` +
+                                                        `<div style="width: 3px; height: 3px; background-color: #ffffff; border-radius: 50%; margin: 2px auto 0 auto;"></div>` +
+                                                        `<div style="width: 16px; height: 22px; background-color: #ffffff; border-radius: 2px; margin: 4px auto 0 auto; position: relative;">` +
+                                                            `<div style="position: absolute; bottom: 1px; right: 1px; width: 8px; height: 8px; background-color: #ff6600; border-radius: 50%;"></div>` +
+                                                        `</div>` +
+                                                    `</div>` +
+                                                `</td>` +
+                                                `<td valign="middle" align="left">` +
+                                                    `<div style="font-size: 20px; font-weight: bold; color: #111827; margin: 0; letter-spacing: -0.3px;">` +
+                                                        `Chủ động thao tác nhanh hơn cùng <span style="color: #5c2d91;">Hi FPT</span>` +
+                                                    `</div>` +
+                                                    `<div style="font-size: 14px; color: #4b5563; margin-top: 3px; font-weight: 500;">` +
+                                                        `Không cần gọi tổng đài - Tiện lợi mọi lúc, mọi nơi` +
+                                                    `</div>` +
+                                                `</td>` +
+                                            `</tr>` +
+                                        `</table>` +
+                                    `</td>` +
+                                `</tr>` +
+                            `</table>` +
+                            `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; padding: 16px 8px;">` +
+                                `<tr>` +
+                                    `<td width="33%" valign="middle" style="padding: 0 12px; border-right: 1px dashed #cbd5e1;">` +
+                                        `<table cellpadding="0" cellspacing="0" border="0" width="100%">` +
+                                            `<tr>` +
+                                                `<td width="40" valign="middle">` +
+                                                    `<div style="width: 40px; height: 40px; background-color: #eff6ff; border-radius: 50%; text-align: center; line-height: 40px; font-size: 20px;">🛠️</div>` +
+                                                `</td>` +
+                                                `<td valign="middle" style="padding-left: 10px; padding-right: 4px;">` +
+                                                    `<div style="font-size: 14px; font-weight: bold; color: #2563eb; margin-bottom: 2px;">Báo hỏng online</div>` +
+                                                    `<div style="font-size: 11px; color: #6b7280; line-height: 1.35;">Tạo yêu cầu hỗ trợ kỹ thuật nhanh chóng trên Hi FPT</div>` +
+                                                `</td>` +
+                                                `<td width="56" valign="middle" align="right">` +
+                                                    `<div style="width: 56px; height: 56px; border: 2px solid #2563eb; border-radius: 6px; padding: 1px; box-sizing: border-box; background-color: #ffffff; text-align: center; position: relative;">` +
+                                                        `<div style="font-size: 8px; font-weight: bold; color: #2563eb; margin-top: 10px; letter-spacing: 1px;">QR</div>` +
+                                                        `<div style="background-color: #2563eb; color: #ffffff; font-size: 5px; font-weight: bold; padding: 2px 0; position: absolute; bottom: 0; left: 0; right: 0; border-radius: 0 0 2px 2px; text-transform: uppercase;">Báo hỏng nhanh<br><span style="font-size:4px;color:#facc15;">tại Hi FPT</span></div>` +
+                                                    `</div>` +
+                                                `</td>` +
+                                            `</tr>` +
+                                        `</table>` +
+                                    `</td>` +
+                                    `<td width="33%" valign="middle" style="padding: 0 12px; border-right: 1px dashed #cbd5e1;">` +
+                                        `<table cellpadding="0" cellspacing="0" border="0" width="100%">` +
+                                            `<tr>` +
+                                                `<td width="40" valign="middle">` +
+                                                    `<div style="width: 40px; height: 40px; background-color: #f0fdf4; border-radius: 50%; text-align: center; line-height: 40px; font-size: 20px;">🧑‍🔧</div>` +
+                                                `</td>` +
+                                                `<td valign="middle" style="padding-left: 10px; padding-right: 4px;">` +
+                                                    `<div style="font-size: 14px; font-weight: bold; color: #16a34a; margin-bottom: 2px;">Theo dõi KTV</div>` +
+                                                    `<div style="font-size: 11px; color: #6b7280; line-height: 1.35;">Xem tiến độ xử lý và thời gian kỹ thuật viên đến hỗ trợ</div>` +
+                                                `</td>` +
+                                                `<td width="56" valign="middle" align="right">` +
+                                                    `<div style="width: 56px; height: 56px; border: 2px solid #16a34a; border-radius: 6px; padding: 1px; box-sizing: border-box; background-color: #ffffff; text-align: center; position: relative;">` +
+                                                        `<div style="font-size: 8px; font-weight: bold; color: #16a34a; margin-top: 10px; letter-spacing: 1px;">QR</div>` +
+                                                        `<div style="background-color: #16a34a; color: #ffffff; font-size: 5px; font-weight: bold; padding: 3px 0; position: absolute; bottom: 0; left: 0; right: 0; border-radius: 0 0 2px 2px; text-transform: uppercase;">Theo dõi KTV</div>` +
+                                                    `</div>` +
+                                                `</td>` +
+                                            `</tr>` +
+                                        `</table>` +
+                                    `</td>` +
+                                    `<td width="34%" valign="middle" style="padding: 0 12px;">` +
+                                        `<table cellpadding="0" cellspacing="0" border="0" width="100%">` +
+                                            `<tr>` +
+                                                `<td width="40" valign="middle">` +
+                                                    `<div style="width: 40px; height: 40px; background-color: #fff7ed; border-radius: 50%; text-align: center; line-height: 40px; font-size: 20px;">📱</div>` +
+                                                `</td>` +
+                                                `<td valign="middle" style="padding-left: 10px; padding-right: 4px;">` +
+                                                    `<div style="font-size: 14px; font-weight: bold; color: #ea580c; margin-bottom: 2px;">Thanh toán 1 chạm</div>` +
+                                                    `<div style="font-size: 11px; color: #6b7280; line-height: 1.35;">Thanh toán cước online nhanh chóng, an toàn và tiện lợi</div>` +
+                                                `</td>` +
+                                                `<td width="56" valign="middle" align="right">` +
+                                                    `<div style="width: 56px; height: 56px; border: 2px solid #ea580c; border-radius: 6px; padding: 1px; box-sizing: border-box; background-color: #ffffff; text-align: center; position: relative;">` +
+                                                        `<div style="font-size: 8px; font-weight: bold; color: #ea580c; margin-top: 10px; letter-spacing: 1px;">QR</div>` +
+                                                        `<div style="background-color: #ea580c; color: #ffffff; font-size: 5px; font-weight: bold; padding: 2px 0; position: absolute; bottom: 0; left: 0; right: 0; border-radius: 0 0 2px 2px; text-transform: uppercase;">Thanh toán nhanh<br><span style="font-size:4px;color:#facc15;">tại Hi FPT</span></div>` +
+                                                    `</div>` +
+                                                `</td>` +
+                                            `</tr>` +
+                                        `</table>` +
+                                    `</td>` +
+                                `</tr>` +
+                            `</table>` +
+                            `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top: 12px; margin-bottom: 12px;">` +
+                                `<tr>` +
+                                    `<td align="center" style="font-size: 13px; color: #374151; font-weight: 500;">` +
+                                        `👉 Quét QR bằng điện thoại hoặc mở ứng dụng <strong>Hi FPT</strong> để trải nghiệm ngay!` +
+                                    `</td>` +
+                                `</tr>` +
+                            `</table>` +
+                            `<div style="border-top: 1px solid #e5e7eb; margin-bottom: 14px; height: 1px; width: 100%;"></div>` +
+                            `<table cellpadding="0" cellspacing="0" border="0" width="100%">` +
+                                `<tr>` +
+                                    `<td width="42%" valign="middle" style="border-right: 1px solid #e5e7eb; padding-right: 16px;">` +
+                                        `<table cellpadding="0" cellspacing="0" border="0" width="100%">` +
+                                            `<tr>` +
+                                                `<td width="48" valign="middle">` +
+                                                    `<a href="https://github.com" target="_blank" style="text-decoration: none; display: block;">` +
+                                                        `<div style="background: linear-gradient(135deg, #1e40af, #1d4ed8); width: 48px; height: 48px; border-radius: 12px; text-align: center; line-height: 48px; color: #ffffff; font-size: 20px; font-weight: bold; font-family: 'Arial Black', sans-serif; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">Hi</div>` +
+                                                    `</a>` +
+                                                `</td>` +
+                                                `<td valign="middle" style="padding-left: 12px;">` +
+                                                    `<div style="font-size: 13px; font-weight: bold; color: #111827; margin-bottom: 6px; line-height: 1.25;">Tải Hi FPT - Quản lý dịch vụ dễ dàng hơn mỗi ngày</div>` +
+                                                    `<table cellpadding="0" cellspacing="0" border="0">` +
+                                                        `<tr>` +
+                                                            `<td style="padding-right: 6px;">` +
+                                                                `<a href="https://github.com" target="_blank" style="text-decoration: none; display: inline-block; background-color: #000000; color: #ffffff; padding: 4px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; line-height: 1.1; width: 78px; border: 1px solid #111111;">` +
+                                                                    `<span style="font-size: 6px; font-weight: normal; color: #9ca3af; display: block; text-transform: uppercase;">Download on the</span>App Store` +
+                                                                `</a>` +
+                                                            `</td>` +
+                                                            `<td>` +
+                                                                `<a href="https://github.com" target="_blank" style="text-decoration: none; display: inline-block; background-color: #000000; color: #ffffff; padding: 4px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; line-height: 1.1; width: 78px; border: 1px solid #111111;">` +
+                                                                    `<span style="font-size: 6px; font-weight: normal; color: #9ca3af; display: block; text-transform: uppercase;">Get it on</span>Google Play` +
+                                                                `</a>` +
+                                                            `</td>` +
+                                                        `</tr>` +
+                                                    `</table>` +
+                                                `</td>` +
+                                            `</tr>` +
+                                        `</table>` +
+                                    `</td>` +
+                                    `<td width="58%" valign="middle" style="padding-left: 16px;">` +
+                                        `<table cellpadding="0" cellspacing="0" border="0" width="100%">` +
+                                            `<tr>` +
+                                                `<td width="33%" valign="top">` +
+                                                    `<table cellpadding="0" cellspacing="0" border="0">` +
+                                                        `<tr>` +
+                                                            `<td valign="top" style="color: #16a34a; font-size: 13px; padding-right: 5px;">✔️</td>` +
+                                                            `<td style="font-size: 11px; color: #374151; line-height: 1.35;">Theo dõi hợp đồng, cước phí, lịch sử thanh toán</td>` +
+                                                        `</tr>` +
+                                                    `</table>` +
+                                                `</td>` +
+                                                `<td width="33%" valign="top">` +
+                                                    `<table cellpadding="0" cellspacing="0" border="0">` +
+                                                        `<tr>` +
+                                                            `<td valign="top" style="color: #2563eb; font-size: 13px; padding-right: 5px;">📶</td>` +
+                                                            `<td style="font-size: 11px; color: #374151; line-height: 1.35;">Quản lý dịch vụ Internet, Truyền hình, Camera</td>` +
+                                                        `</tr>` +
+                                                    `</table>` +
+                                                `</td>` +
+                                                `<td width="34%" valign="top">` +
+                                                    `<table cellpadding="0" cellspacing="0" border="0">` +
+                                                        `<tr>` +
+                                                            `<td valign="top" style="color: #dc2626; font-size: 13px; padding-right: 5px;">🔔</td>` +
+                                                            `<td style="font-size: 11px; color: #374151; line-height: 1.35;">Nhận thông báo và ưu đãi mới nhất từ FPT Telecom</td>` +
+                                                        `</tr>` +
+                                                    `</table>` +
+                                                `</td>` +
+                                            `</tr>` +
+                                        `</table>` +
+                                    `</td>` +
+                                `</tr>` +
+                            `</table>` +
+                        `</td>` +
+                    `</tr>` +
+                `</table>`;
+            return;
+        }
+
         const gender = document.getElementById('gender').value;
         const genderLower = gender.toLowerCase();
-        
         const customerName = capitalizeFirstLetter(document.getElementById('customerName').value) || '[Tên KH]';
         const contractId = capitalizeFirstLetter(document.getElementById('contractId').value) || '[Số hợp đồng]';
         const phone = document.getElementById('phone').value || '[SĐT KH]';
         const address = capitalizeFirstLetter(document.getElementById('address').value) || '...';
-        
         const currentQrUrl = QR_IMAGES[type];
         const currentDeeplink = DEEPLINKS[type];
         
@@ -280,17 +456,18 @@
                 `</table><br>` +
                 
                 `Hoàn tất thanh toán, ${genderLower} ${customerName} sẽ được tặng <span style="font-weight: bold;">3000 gold vào tài khoản Khách hàng thân thiết</span> đấy ạ. ${gender} có thể sử dụng điểm tích lũy này để đổi các Evoucher hấp dẫn ngay trên ứng dụng Hi FPT tại mục <span style="font-weight: bold;">"Ưu đãi"</span>.<br><br>` +
-                `Khi cần báo hỏng hoặc yêu cầu hỗ trợ khác, ${genderLower} có thể gửi yêu cầu trực tiếp trên <span style="font-weight: bold;">Ứng dụng Hi FPT</span> tại mục <span style="font-weight: bold;">"Hỗ trợ"</span> hoặc <span style="font-weight: bold;">"Báo hỏng nhanh"</span> để được hỗ trợ nhanh chóng mà không cần gọi tổng đài ạ.<br><br>` +
+                `Khi cần báo hỏng hoặc yêu cầu hỗ trợ khác, ${genderLower} có thể gửi yêu cầu trực tiếp trên Ứng dụng Hi FPT tại mục <span style="font-weight: bold;">"Hỗ trợ"</span> hoặc <span style="font-weight: bold;">"Báo hỏng nhanh"</span> để được hỗ trợ nhanh chóng mà không cần gọi tổng đài ạ.<br><br>` +
                 `FPT Telecom cảm ơn ${genderLower} ${customerName} đã liên hệ ạ.<br><br>` +
                 `Trân trọng,<br>` +
                 `<span style="font-weight: bold;">Trung tâm CSKH FPT Telecom</span>` +
                 `</div>`;
         }
 
-        document.getElementById('emailSubject').innerText = "Tiêu đề: " + subject;
+        document.getElementById('emailSubject').innerText = subject;
         document.getElementById('emailContent').innerHTML = emailHtml;
     }
 
+    // Cơ chế sao chép: Chỉ sao chép nội dung (Body), bỏ Tiêu đề (Subject)
     function copyToClipboard() {
         const contentHtml = document.getElementById('emailContent').innerHTML;
         const contentText = document.getElementById('emailContent').innerText;
@@ -308,7 +485,7 @@
             })];
 
             navigator.clipboard.write(data).then(() => {
-                alert("Đã sao chép nội dung email! Hãy dán (Ctrl+V) thẳng vào Outlook. Mã QR hiện đã được nhúng kèm Deeplink ẩn.");
+                alert("Đã sao chép nội dung email! Hãy dán (Ctrl+V) vào Outlook.");
             }).catch(err => {
                 copyAsPlainText(fullText);
             });
@@ -320,7 +497,7 @@
             document.execCommand('copy');
             document.body.removeChild(textArea);
             
-            alert("Đã copy dạng văn bản tĩnh.\n\nĐể dán sang Outlook có đủ IN ĐẬM, HÌNH ẢNH và DEEPLINK ở môi trường offline, bạn hãy dùng chuột bôi đen vùng Xem trước rồi nhấn Ctrl+C nhé!");
+            alert("Đã copy dạng văn bản tĩnh.\n\nĐể dán sang Outlook có đủ IN ĐẬM và HÌNH ẢNH ở môi trường offline, bạn hãy dùng chuột bôi đen vùng Xem trước rồi nhấn Ctrl+C nhé!");
         }
     }
 
