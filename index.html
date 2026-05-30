@@ -3,29 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Công cụ Khởi Tạo Email CSKH FPT Telecom</title>
+    <title>Công cụ Khởi Tạo Email CSKH - Service Operation Center</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 920px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: 0 auto; display: flex; gap: 20px; }
+        .container { max-width: 960px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: 0 auto; display: flex; gap: 20px; }
         .form-section { flex: 1; max-width: 40%; }
         .preview-section { flex: 1; max-width: 60%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 6px; display: flex; flex-direction: column; }
-        h2 { color: #f26f21; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-top: 0; font-size: 18px; }
+        h2 { color: #f26f21; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-top: 0; font-size: 18px; text-transform: uppercase; letter-spacing: 0.5px; }
         .form-group { margin-bottom: 12px; }
         .form-row { display: flex; gap: 10px; }
         label { display: block; font-weight: bold; margin-bottom: 4px; color: #4a5568; font-size: 13px; }
-        input[type="text"], input[type="date"], select { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e0; border-radius: 4px; box-sizing: border-box; font-size: 13px; }
+        input[type="text"], input[type="date"], select { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e0; border-radius: 4px; box-sizing: border-box; font-size: 13px; transition: all 0.2s ease; }
         input:focus, select:focus { border-color: #f26f21; outline: none; box-shadow: 0 0 0 2px rgba(242, 111, 33, 0.2); }
         .hidden { display: none; }
         .btn-group { margin-top: 15px; display: flex; gap: 10px; }
-        button { flex: 1; padding: 10px; font-size: 14px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; }
+        button { flex: 1; padding: 10px; font-size: 14px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; transition: background 0.2s ease; }
         .btn-primary { background-color: #f26f21; color: white; }
         .btn-primary:hover { background-color: #d95a14; }
         .btn-secondary { background-color: #edf2f7; color: #4a5568; }
         .btn-secondary:hover { background-color: #e2e8f0; }
         .output-header { font-weight: bold; color: #2d3748; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
-        #subjectWrapper { font-size: 13px; margin-bottom: 10px; padding: 8px; background: #fff; border: 1px dashed #cbd5e0; }
+        #subjectWrapper { font-size: 13px; margin-bottom: 10px; padding: 8px; background: #fff; border: 1px dashed #cbd5e0; border-radius: 4px; }
         #emailSubject { font-weight: bold; color: #f26f21; }
-        #emailContent { background: #fff; padding: 15px; border: 1px solid #e2e8f0; min-height: 350px; font-size: 14px; line-height: 1.6; flex-grow: 1; overflow-y: auto; color: #2d3748; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        #emailContent { background: #fff; padding: 15px; border: 1px solid #e2e8f0; min-height: 400px; font-size: 14px; line-height: 1.6; flex-grow: 1; overflow-y: auto; color: #2d3748; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -73,6 +73,11 @@
                 <input type="text" id="address" placeholder="Ví dụ: Phường Cầu Giấy, Hà Nội" oninput="generateEmail()">
             </div>
 
+            <div class="form-group">
+                <label for="staffName">Tên nhân viên CSKH:</label>
+                <input type="text" id="staffName" value="Nguyễn Mạnh Cường" placeholder="Nhập tên của bạn" oninput="generateEmail()">
+            </div>
+
             <div id="failureFields">
                 <div class="form-group">
                     <label for="expectedTime">Thời gian xử lý dự kiến:</label>
@@ -108,10 +113,6 @@
                     <label for="servicePackage">Gói dịch vụ:</label>
                     <input type="text" id="servicePackage" placeholder="Ví dụ: Giga, Sky, Meta..." oninput="generateEmail()">
                 </div>
-                <div class="form-group">
-                    <label for="staffName">Tên nhân viên CSKH:</label>
-                    <input type="text" id="staffName" placeholder="Nhập tên của bạn" oninput="generateEmail()">
-                </div>
             </div>
         </div>
 
@@ -129,11 +130,13 @@
 </div>
 
 <script>
+    // Cập nhật link ảnh QR mới theo yêu cầu
     const QR_IMAGES = {
-        failure: "http://tools.manhcuongit.online/BAOHONGNHANH.jpg",
-        payment: "http://tools.manhcuongit.online/THANHTOANNHANH.jpg"
+        failure: "https://tools.manhcuongit.online/images/image/bao-hong-nhanh.jpg",
+        payment: "https://tools.manhcuongit.online/images/image/bao-hong-nhanh.jpg"
     };
 
+    // Các deeplink điều hướng gốc được giữ nguyên
     const DEEPLINKS = {
         failure: "https://hi.fpt.vn/rev/lbq/P3M3JDZB",
         payment: "https://hi.fpt.vn/rev/fbu/1dnN3BoM"
@@ -165,7 +168,7 @@
 
     function capitalizeFirstLetter(str) {
         if (!str) return '';
-        return str.charAt(0).toUpperCase() + str.slice(1);
+        return str.trim().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     }
 
     function formatCurrency(value) {
@@ -212,10 +215,10 @@
 
     function generateEmail() {
         const type = document.getElementById('templateType').value;
+        const staffName = capitalizeFirstLetter(document.getElementById('staffName').value) || '[Tên nhân viên]';
         
         if (type === 'signature_test') {
             document.getElementById('emailSubject').innerText = "";
-            // Đổ toàn bộ code chữ ký test của bạn vào khung preview
             document.getElementById('emailContent').innerHTML = 
                 `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width: 800px; background-color: #f7f9fc; border-radius: 16px; border: 1px solid #e2e8f0; font-family: 'Segoe UI', Arial, sans-serif; border-collapse: separate;">` +
                     `<tr>` +
@@ -280,7 +283,7 @@
                                                 `<td width="56" valign="middle" align="right">` +
                                                     `<div style="width: 56px; height: 56px; border: 2px solid #16a34a; border-radius: 6px; padding: 1px; box-sizing: border-box; background-color: #ffffff; text-align: center; position: relative;">` +
                                                         `<div style="font-size: 8px; font-weight: bold; color: #16a34a; margin-top: 10px; letter-spacing: 1px;">QR</div>` +
-                                                        `<div style="background-color: #16a34a; color: #ffffff; font-size: 5px; font-weight: bold; padding: 3px 0; position: absolute; bottom: 0; left: 0; right: 0; border-radius: 0 0 2px 2px; text-transform: uppercase;">Theo dõi KTV</div>` +
+                                                        `<div style="background-color: #16a34a; color: #ffffff; font-size: 5px; font-weight: bold; padding: 2px 0; position: absolute; bottom: 0; left: 0; right: 0; border-radius: 0 0 2px 2px; text-transform: uppercase;">Theo dõi KTV</div>` +
                                                     `</div>` +
                                                 `</td>` +
                                             `</tr>` +
@@ -321,7 +324,7 @@
                                         `<table cellpadding="0" cellspacing="0" border="0" width="100%">` +
                                             `<tr>` +
                                                 `<td width="48" valign="middle">` +
-                                                    `<a href="https://github.com" target="_blank" style="text-decoration: none; display: block;">` +
+                                                    `<a href="https://hi.fpt.vn" target="_blank" style="text-decoration: none; display: block;">` +
                                                         `<div style="background: linear-gradient(135deg, #1e40af, #1d4ed8); width: 48px; height: 48px; border-radius: 12px; text-align: center; line-height: 48px; color: #ffffff; font-size: 20px; font-weight: bold; font-family: 'Arial Black', sans-serif; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">Hi</div>` +
                                                     `</a>` +
                                                 `</td>` +
@@ -330,12 +333,12 @@
                                                     `<table cellpadding="0" cellspacing="0" border="0">` +
                                                         `<tr>` +
                                                             `<td style="padding-right: 6px;">` +
-                                                                `<a href="https://github.com" target="_blank" style="text-decoration: none; display: inline-block; background-color: #000000; color: #ffffff; padding: 4px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; line-height: 1.1; width: 78px; border: 1px solid #111111;">` +
+                                                                `<a href="https://hi.fpt.vn" target="_blank" style="text-decoration: none; display: inline-block; background-color: #000000; color: #ffffff; padding: 4px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; line-height: 1.1; width: 78px; border: 1px solid #111111;">` +
                                                                     `<span style="font-size: 6px; font-weight: normal; color: #9ca3af; display: block; text-transform: uppercase;">Download on the</span>App Store` +
                                                                 `</a>` +
                                                             `</td>` +
                                                             `<td>` +
-                                                                `<a href="https://github.com" target="_blank" style="text-decoration: none; display: inline-block; background-color: #000000; color: #ffffff; padding: 4px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; line-height: 1.1; width: 78px; border: 1px solid #111111;">` +
+                                                                `<a href="https://hi.fpt.vn" target="_blank" style="text-decoration: none; display: inline-block; background-color: #000000; color: #ffffff; padding: 4px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; line-height: 1.1; width: 78px; border: 1px solid #111111;">` +
                                                                     `<span style="font-size: 6px; font-weight: normal; color: #9ca3af; display: block; text-transform: uppercase;">Get it on</span>Google Play` +
                                                                 `</a>` +
                                                             `</td>` +
@@ -386,7 +389,7 @@
         const gender = document.getElementById('gender').value;
         const genderLower = gender.toLowerCase();
         const customerName = capitalizeFirstLetter(document.getElementById('customerName').value) || '[Tên KH]';
-        const contractId = capitalizeFirstLetter(document.getElementById('contractId').value) || '[Số hợp đồng]';
+        const contractId = document.getElementById('contractId').value.toUpperCase() || '[Số hợp đồng]';
         const phone = document.getElementById('phone').value || '[SĐT KH]';
         const address = capitalizeFirstLetter(document.getElementById('address').value) || '...';
         const currentQrUrl = QR_IMAGES[type];
@@ -403,22 +406,23 @@
             
             emailHtml = `<div style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #2d3748; line-height: 1.6;">` +
                 `Thân chào ${gender} ${customerName},<br><br>` +
-                `Bên em đã ghi nhận vấn đề gián đoạn tại đường truyền [${contractId}] tại ${address} và sẽ cử kỹ thuật viên qua phục vụ trực tiếp tại nhà.<br><br>` +
+                `Em là ${staffName} - Nhân viên CSKH FPT Telecom.<br><br>` +
+                `Bên em đã ghi nhận vấn đề gián đoạn tại đường truyền <b>${contractId}</b> tại <b>${address}</b> và sẽ cử kỹ thuật viên qua phục vụ trực tiếp tại nhà.<br><br>` +
                 
-                `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 10px; margin-bottom: 10px;">` +
+                `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 10px; margin-bottom: 10px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">` +
                     `<tr>` +
-                        `<td width="65%" valign="middle" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #2d3748; line-height: 1.8; padding-right: 15px;">` +
+                        `<td width="65%" valign="middle" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #2d3748; line-height: 1.8; padding: 15px;">` +
                             `• <span style="font-weight: bold;">Thời gian xử lý dự kiến:</span> ${expectedTime}<br>` +
                             `• <span style="font-weight: bold;">Kỹ thuật viên:</span> ${techName}<br><br>` +
                             `Chi tiết tiến độ xử lý và thông tin kỹ thuật viên, vui lòng xem tại ứng dụng <span style="font-weight: bold;">Hi FPT</span> <i>(quét hoặc chạm mã QR bên cạnh, đăng nhập bằng SĐT ${phone})</i>.` +
                         `</td>` +
-                        `<td width="35%" align="center" valign="middle">` +
-                            `<a href="${currentDeeplink}" target="_blank" style="text-decoration: none;"><img src="${currentQrUrl}" alt="Mã QR Hi FPT" width="160" style="display: block; max-width: 100%; height: auto; border: 1px solid #e2e8f0; padding: 5px; background: #fff;"></a>` +
+                        `<td width="35%" align="center" valign="middle" style="padding: 15px;">` +
+                            `<a href="${currentDeeplink}" target="_blank" style="text-decoration: none;"><img src="${currentQrUrl}" alt="Mã QR Hi FPT" width="150" style="display: block; max-width: 100%; height: auto; border: 1px solid #cbd5e0; padding: 4px; background: #fff; border-radius: 4px;"></a>` +
                         `</td>` +
                     `</tr>` +
                 `</table><br>` +
                 
-                `Lần tới khi cần báo hỏng hoặc yêu cầu hỗ trợ khác, ${genderLower} có thể gửi yêu cầu trực tiếp ngay trên <span style="font-weight: bold;">Ứng dụng Hi FPT</span> tại mục <span style="font-weight: bold;">"Hỗ trợ"</span> hoặc <span style="font-weight: bold;">"Báo hỏng nhanh"</span> mà không cần chờ đợi gọi lên tổng đài.<br><br>` +
+                `Khi cần báo hỏng hoặc yêu cầu hỗ trợ khác, ${genderLower} có thể quét mã QR để gửi yêu cầu trực tiếp trên <span style="font-weight: bold;">Ứng dụng Hi FPT</span> tại mục <span style="font-weight: bold;">"Hỗ trợ"</span> hoặc <span style="font-weight: bold;">"Báo hỏng nhanh"</span> sẽ được phục vụ nhanh chóng mà không cần gọi hotline.<br><br>` +
                 `FPT Telecom cảm ơn ${genderLower} ${customerName} đã liên hệ ạ.<br><br>` +
                 `Trân trọng,<br>` +
                 `<span style="font-weight: bold;">Trung tâm CSKH FPT Telecom</span>` +
@@ -428,7 +432,6 @@
             const amountInput = document.getElementById('amount').value;
             const formattedAmount = formatCurrency(amountInput);
             const servicePackage = capitalizeFirstLetter(document.getElementById('servicePackage').value) || '....';
-            const staffName = capitalizeFirstLetter(document.getElementById('staffName').value) || '[Tên nhân viên]';
             const cycleInfoLine = getCalculatedCycleInfo();
             const selection = document.getElementById('monthsCount').value;
             const displayMonthText = (selection === "6") ? "6" : "12";
@@ -437,26 +440,25 @@
             
             emailHtml = `<div style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #2d3748; line-height: 1.6;">` +
                 `Thân chào ${gender} ${customerName},<br><br>` +
-                `Em là ${staffName} - CSKH FPT Telecom.<br><br>` +
-                `Hiện tại hợp đồng ${contractId} tại ${address} đã đến kỳ gia hạn trả trước.<br><br>` +
-                `Em gửi ${genderLower} thông tin thanh toán kỳ ${displayMonthText} tháng tiếp theo cho gói mới như sau:<br><br>` +
+                `Em là ${staffName} - Nhân viên CSKH FPT Telecom.<br><br>` +
+                `Hiện tại hợp đồng <b>${contractId}</b> tại <b>${address}</b> đã đến kỳ gia hạn trả trước.<br><br>` +
+                `Em gửi ${genderLower} thông tin thanh toán kỳ <b>${displayMonthText}</b> tháng tiếp theo cho gói dịch vụ đang sử dụng như sau:<br><br>` +
                 
-                `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 10px; margin-bottom: 10px;">` +
+                `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 10px; margin-bottom: 10px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">` +
                     `<tr>` +
-                        `<td width="65%" valign="middle" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #2d3748; line-height: 1.8; padding-right: 15px;">` +
+                        `<td width="65%" valign="middle" style="font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; color: #2d3748; line-height: 1.8; padding: 15px;">` +
                             `• <span style="font-weight: bold;">Số tiền cần thanh toán:</span> ${formattedAmount}<br>` +
                             `${cycleInfoLine}<br>` +
                             `• <span style="font-weight: bold;">Gói dịch vụ:</span> ${servicePackage}<br><br>` +
                             `Thanh toán nhanh, an toàn & dễ dàng kiểm tra tình trạng thanh toán ngay tại ứng dụng <span style="font-weight: bold;">Hi FPT</span> <i>(quét hoặc chạm mã QR bên cạnh, đăng nhập SĐT ${phone})</i>.` +
                         `</td>` +
-                        `<td width="35%" align="center" valign="middle">` +
-                            `<a href="${currentDeeplink}" target="_blank" style="text-decoration: none;"><img src="${currentQrUrl}" alt="Mã QR Thanh Toán" width="160" style="display: block; max-width: 100%; height: auto; border: 1px solid #e2e8f0; padding: 5px; background: #fff;"></a>` +
+                        `<td width="35%" align="center" valign="middle" style="padding: 15px;">` +
+                            `<a href="${currentDeeplink}" target="_blank" style="text-decoration: none;"><img src="${currentQrUrl}" alt="Mã QR Thanh Toán" width="150" style="display: block; max-width: 100%; height: auto; border: 1px solid #cbd5e0; padding: 4px; background: #fff; border-radius: 4px;"></a>` +
                         `</td>` +
                     `</tr>` +
                 `</table><br>` +
                 
-                `Hoàn tất thanh toán, ${genderLower} ${customerName} sẽ được tặng <span style="font-weight: bold;">3000 gold vào tài khoản Khách hàng thân thiết</span> đấy ạ. ${gender} có thể sử dụng điểm tích lũy này để đổi các Evoucher hấp dẫn ngay trên ứng dụng Hi FPT tại mục <span style="font-weight: bold;">"Ưu đãi"</span>.<br><br>` +
-                `Khi cần báo hỏng hoặc yêu cầu hỗ trợ khác, ${genderLower} có thể gửi yêu cầu trực tiếp trên Ứng dụng Hi FPT tại mục <span style="font-weight: bold;">"Hỗ trợ"</span> hoặc <span style="font-weight: bold;">"Báo hỏng nhanh"</span> để được hỗ trợ nhanh chóng mà không cần gọi tổng đài ạ.<br><br>` +
+                `Khi cần báo hỏng hoặc yêu cầu hỗ trợ khác, ${genderLower} có thể quét mã QR để gửi yêu cầu trực tiếp trên <span style="font-weight: bold;">Ứng dụng Hi FPT</span> tại mục <span style="font-weight: bold;">"Hỗ trợ"</span> hoặc <span style="font-weight: bold;">"Báo hỏng nhanh"</span> sẽ được phục vụ nhanh chóng mà không cần gọi hotline.<br><br>` +
                 `FPT Telecom cảm ơn ${genderLower} ${customerName} đã liên hệ ạ.<br><br>` +
                 `Trân trọng,<br>` +
                 `<span style="font-weight: bold;">Trung tâm CSKH FPT Telecom</span>` +
@@ -467,7 +469,6 @@
         document.getElementById('emailContent').innerHTML = emailHtml;
     }
 
-    // Cơ chế sao chép: Chỉ sao chép nội dung (Body), bỏ Tiêu đề (Subject)
     function copyToClipboard() {
         const contentHtml = document.getElementById('emailContent').innerHTML;
         const contentText = document.getElementById('emailContent').innerText;
@@ -519,9 +520,11 @@
         document.getElementById('cycleStart').value = '';
         document.getElementById('amount').value = '';
         document.getElementById('servicePackage').value = '';
+        document.getElementById('staffName').value = 'Nguyễn Mạnh Cường';
         generateEmail();
     }
 
+    // Khởi tạo lần đầu
     generateEmail();
 </script>
 
