@@ -20,7 +20,7 @@ window.SOC_TEMPLATES["t_da_xu_ly"] = {
     `,
 
     body: `
-        Thân chào {{honorific}} <b>{{customerName}}</b>,<br>
+        Thân chào {{honorific}} <b>{{customerName}}</b>,<br><br>
         Em là <b>{{staffName}}</b> – Nhân viên CSKH FPT Telecom.<br><br>
         Em cảm ơn {{pronounLc}} đã phản hồi tích cực ạ. Trong quá trình sử dụng không tránh khỏi những vấn đề phát sinh, với mong muốn có được phản ánh của khách hàng sớm nhất, {{honorific}} cài đặt và sử dụng ứng dụng <b>Hi FPT</b> giúp em nhé:<br>
         {INFO_BOX}
