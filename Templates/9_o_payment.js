@@ -41,7 +41,7 @@ window.SOC_TEMPLATES["o_payment"] = {
     
     boxContent: `
         <ul style="margin: 0; padding-left: 20px;">
-            <li style="margin-bottom: 4px;"><b>Số tiền cần thanh toán:</b> {{amount}} Đ</li>
+            <li style="margin-bottom: 4px;"><b>Số tiền cần thanh toán:</b> {{amount}} VNĐ</li>
             {{cycleListHTML}}
             <li style="margin-bottom: 4px;"><b>Gói dịch vụ:</b> <b>{{servicePackage}}</b></li>
         </ul>
@@ -52,9 +52,9 @@ window.SOC_TEMPLATES["o_payment"] = {
         Thân chào {{honorific}} <b>{{customerName}}</b>,<br><br>
         Em là <b>{{staffName}}</b> - Nhân viên CSKH FPT Telecom.<br><br>
         Hiện tại hợp đồng <b>{{contractId}}</b> tại <b>{{address}}</b> đã đến kỳ gia hạn trả trước.<br><br>
-        Em gửi {{pronoun.toLowerCase()}} thông tin thanh toán kỳ <b>{{displayMonthText}}</b> tháng tiếp theo cho gói dịch vụ đang sử dụng như sau:<br>
+        Em gửi {{pronounLc}} thông tin thanh toán kỳ <b>{{displayMonthText}}</b> tháng tiếp theo cho gói dịch vụ đang sử dụng như sau:<br>
         {INFO_BOX}
-        Khi cần báo hỏng hoặc yêu cầu phục vụ khác, {{pronoun.toLowerCase()}} có thể quét mã QR để gửi yêu cầu trực tiếp trên <b>Ứng dụng Hi FPT</b> tại mục <b>"Phục vụ"</b> hoặc <b>"Báo hỏng nhanh"</b> sẽ được xử lý nhanh chóng mà không cần gọi hotline.<br><br>
-        FPT Telecom cảm ơn {{pronoun.toLowerCase()}} <b>{{customerName}}</b> đã liên hệ ạ.
+        Khi cần báo hỏng hoặc yêu cầu phục vụ khác, {{pronounLc}} có thể quét mã QR để gửi yêu cầu trực tiếp trên <b>Ứng dụng Hi FPT</b> tại mục <b>"Phục vụ"</b> hoặc <b>"Báo hỏng nhanh"</b> sẽ được xử lý nhanh chóng mà không cần gọi hotline.<br><br>
+        FPT Telecom cảm ơn {{pronounLc}} <b>{{customerName}}</b> đã liên hệ ạ.
     `
 };
