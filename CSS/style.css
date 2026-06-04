@@ -80,9 +80,13 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 
 #emailContent { 
     font-size: 14.5px; 
-    line-height: 1.65; 
+    line-height: 1.4; 
     color: #1e293b; 
     font-family: inherit; /* Sử dụng font web hiện đại */
+}
+/* Thêm đoạn này để các đoạn văn (paragraphs) không bị cách nhau quá xa */
+#emailContent p {
+    margin-bottom: 8px !important; /* Giảm khoảng cách giữa các đoạn */
 }
 
 #emailSignature { 
