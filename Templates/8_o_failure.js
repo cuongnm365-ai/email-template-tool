@@ -27,7 +27,7 @@ window.SOC_TEMPLATES["o_failure"] = {
         Em là <b>{{staffName}}</b> - Nhân viên CSKH FPT Telecom.<br><br>
         Bên em đã ghi nhận thông tin phản ánh về chất lượng của đường truyền có Số hợp đồng <b>{{contractId}}</b> tại địa chỉ <b>{{address}}</b> và sẽ cử kỹ thuật viên qua phục vụ trực tiếp tại nhà.<br>
         {INFO_BOX}
-        Trong quá trình sử dụng, khi cần báo hỏng hoặc yêu cầu phục vụ khác, {{pronoun.toLowerCase()}} có thể quét mã QR để gửi yêu cầu trực tiếp trên <b>Ứng dụng Hi FPT</b> tại mục <b>"Phục vụ"</b> hoặc <b>"Báo hỏng nhanh"</b>. Bên em sẽ xử lý nhanh chóng mà không cần gọi hotline.<br><br>
-        Chân thành cảm ơn {{pronoun.toLowerCase()}} <b>{{customerName}}</b> đã tin tưởng và sử dụng dịch vụ của FPT Telecom.
+        Trong quá trình sử dụng, khi cần báo hỏng hoặc yêu cầu phục vụ khác, {{pronounLc}} có thể quét mã QR để gửi yêu cầu trực tiếp trên <b>Ứng dụng Hi FPT</b> tại mục <b>"Phục vụ"</b> hoặc <b>"Báo hỏng nhanh"</b>. Bên em sẽ xử lý nhanh chóng mà không cần gọi hotline.<br><br>
+        Chân thành cảm ơn {{pronounLc}} <b>{{customerName}}</b> đã tin tưởng và sử dụng dịch vụ của FPT Telecom.
     `
 };
