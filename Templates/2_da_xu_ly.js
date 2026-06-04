@@ -13,19 +13,17 @@ window.SOC_TEMPLATES["t_da_xu_ly"] = {
     
     boxContent: `
         <ul style="margin: 0; padding-left: 20px;">
-            <li style="margin-bottom: 4px;"><b>Kiểm tra “sức khỏe mạng”</b>, Cài đặt wifi dễ dàng <i>(đổi tên/mật khẩu)</i></li>
-            <li style="margin-bottom: 4px;">Theo dõi và <b>thanh toán hóa đơn</b> định kỳ</li>
-            <li style="margin-bottom: 4px;">Gửi <b>báo hỏng nhanh</b> khi có sự cố không cần gọi Tổng đài</li>
+            <li style="margin-bottom: 4px;"><b>Thời gian xử lý dự kiến:</b> [Thời gian dự kiến]</li>
+            <li style="margin-bottom: 4px;"><b>Kỹ thuật viên phục vụ:</b> [Tên KTV - Số ĐT]</li>
         </ul>
-        <p style="margin-bottom:0; font-style: italic;">➔ Chi tiết vui lòng xem tại ứng dụng <b>Hi FPT</b> (quét hoặc chạm mã QR bên cạnh, đăng nhập bằng SĐT <b>{{phone}}</b>)</p>
+        <p style="margin-top: 10px; margin-bottom: 0; font-style: italic;">➔ Chi tiết tiến độ xử lý và thông tin KTV, vui lòng xem tại ứng dụng <b>Hi FPT</b> (quét hoặc chạm mã QR, đăng nhập bằng SĐT <b>{{phone}}</b>)</p>
     `,
 
     body: `
         Thân chào {{honorific}} <b>{{customerName}}</b>,<br><br>
         Em là <b>{{staffName}}</b> – CSKH FPT Telecom.<br><br>
-        Em cảm ơn {{pronoun}} đã phản hồi tích cực ạ. Trong quá trình sử dụng không tránh khỏi những vấn đề phát sinh, với mong muốn có được phản ánh của khách hàng sớm nhất, {{honorific}} cài đặt và sử dụng ứng dụng <b>Hi FPT</b> giúp em nhé:<br>
-        {INFO_BOX}
-        Lần tới khi cần báo hỏng hoặc yêu cầu phục vụ khác, {{honorific}} có thể gửi yêu cầu trực tiếp ngay trên Ứng dụng Hi FPT tại mục <b>"Hỗ trợ"</b> hoặc <b>"Báo hỏng nhanh"</b> mà không cần gọi lên tổng đài ạ.<br><br>
+        Em cảm ơn {{pronoun}} đã phản hồi tích cực ạ. {INFO_BOX}<br><br>
+        Lần tới khi cần báo hỏng hoặc yêu cầu phục vụ khác, {{honorific}} có thể gửi yêu cầu trực tiếp ngay trên Ứng dụng Hi FPT mà không cần gọi lên tổng đài ạ.<br><br>
         Chúc {{honorific}} cuối tuần vui vẻ!
     `
 };
