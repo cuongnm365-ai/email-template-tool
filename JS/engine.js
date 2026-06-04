@@ -1,13 +1,14 @@
 /* =========================================================
    BỘ NÃO XỬ LÝ (ENGINE) - SOC COMMAND CENTER
    Bản cập nhật: Tách biệt Font hiển thị Web và Font Copy Outlook
+   Cập nhật Link Ảnh Online (Public URL)
    ========================================================= */
 
 const SYSTEM_ASSETS = {
-    "cai_dat": { img: "Images/Picture/cai-dat-nhanh.jpg", link: "https://hi.fpt.vn/rev/lbq/P3M3JDZB" },
-    "theo_doi_ktv": { img: "Images/Picture/theo-doi-KTV.jpg", link: "https://hi.fpt.vn/rev/lbq/P3M3JDZB" },
-    "thanh_toan": { img: "Images/Picture/thanh-toan-nhanh.jpg", link: "https://hi.fpt.vn/rev/fbu/1dnN3BoM" },
-    "bao_hong": { img: "Images/Picture/bao-hong-nhanh.jpg", link: "https://hi.fpt.vn/rev/esv/Mq9r4jlG" }
+    "cai_dat": { img: "https://tools.manhcuongit.online/Images/Picture/cai-dat-nhanh.jpg", link: "https://hi.fpt.vn/rev/lbq/P3M3JDZB" },
+    "theo_doi_ktv": { img: "https://tools.manhcuongit.online/Images/Picture/theo-doi-ktv.jpg", link: "https://hi.fpt.vn/rev/lbq/P3M3JDZB" },
+    "thanh_toan": { img: "https://tools.manhcuongit.online/Images/Picture/thanh-toan-nhanh.jpg", link: "https://hi.fpt.vn/rev/fbu/1dnN3BoM" },
+    "bao_hong": { img: "https://tools.manhcuongit.online/Images/Picture/bao-hong-nhanh.jpg", link: "https://hi.fpt.vn/rev/esv/Mq9r4jlG" }
 };
 
 window.SOC_TEMPLATES = window.SOC_TEMPLATES || {};
@@ -132,9 +133,8 @@ function renderEmail() {
         let qrSection = "";
         if (template.qrType && SYSTEM_ASSETS[template.qrType]) {
             let asset = SYSTEM_ASSETS[template.qrType];
-            qrSection = `<td width="140" align="center" valign="middle" style="padding: 15px; border-left: 1px dashed #cbd5e0;"><a href="${asset.link}" target="_blank" style="text-decoration: none;"><img src="${asset.img}" alt="QR" width="130" style="display: block; max-width: 100%; border: 1px solid #cbd5e0; padding: 4px; background: #fff; border-radius: 4px;"></a></td>`;
+            qrSection = `<td width="140" align="center" valign="middle" style="padding: 15px; border-left: 1px dashed #cbd5e0;"><a href="${asset.link}" target="_blank" style="text-decoration: none;"><img src="${asset.img}" alt="QR Code Hi FPT" width="130" style="display: block; max-width: 100%; border: 1px solid #cbd5e0; padding: 4px; background: #fff; border-radius: 4px;"></a></td>`;
         }
-        // Gỡ bỏ thuộc tính font-family ở đây để kế thừa font web tự nhiên
         infoBoxHtml = `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #f26f21; border-radius: 4px; margin: 15px 0;"><tr><td valign="middle" style="padding: 15px; font-family: inherit; font-size: 14.5px; color: #2d3748; line-height: 1.6;">${replaceVars(template.boxContent)}</td>${qrSection}</tr></table>`;
     }
 
@@ -151,7 +151,6 @@ function copyEmailContent() {
     const contentHtml = document.getElementById('emailContent').innerHTML;
     const sigHtml = document.getElementById('emailSignature').innerHTML;
     
-    // ĐÂY LÀ CHÌA KHÓA: Khi bấm nút Copy, tự động bọc lại bằng font Aptos gửi vào Clipboard
     const fullHtml = `<div style="font-family: 'Aptos', Arial, sans-serif; font-size: 14.5px; color: #2d3748;">${contentHtml}<br>${sigHtml}</div>`;
     
     if (navigator.clipboard && window.ClipboardItem) {
