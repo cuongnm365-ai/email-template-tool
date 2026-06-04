@@ -27,7 +27,7 @@ window.SOC_TEMPLATES["t_bao_hong"] = {
         Em là <b>{{staffName}}</b> – Nhân viên Chăm sóc Khách hàng của FPT Telecom.<br><br>
         Như trao đổi với {{pronoun}} qua điện thoại, bên em đã ghi nhận vấn đề gián đoạn tại đường truyền <b>{{contractId}}</b> tại địa chỉ <b>{{address}}</b> và sẽ cử kỹ thuật viên qua phục vụ trực tiếp tại nhà mình.<br>
         {INFO_BOX}
-        Lần tới khi cần báo hỏng hoặc yêu cầu phục vụ khác, {{pronoun}} có thể gửi yêu cầu trực tiếp ngay trên Ứng dụng Hi FPT tại mục <b>"Hỗ trợ"</b> hoặc <b>"Báo hỏng nhanh"</b> mà không cần gọi lên tổng đài.<br><br>
+        Lần tới khi cần báo hỏng hoặc yêu cầu phục vụ khác, {{pronoun}} có thể gửi yêu cầu trực tiếp ngay trên Ứng dụng Hi FPT tại mục <b>"Phục vụ"</b> hoặc <b>"Báo hỏng nhanh"</b> mà không cần gọi lên tổng đài.<br><br>
         FPT Telecom luôn sẵn sàng phục vụ và cảm ơn {{honorific}} đã liên hệ ạ.
     `
 };
