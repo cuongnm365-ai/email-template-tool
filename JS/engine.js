@@ -104,6 +104,7 @@ function renderEmail() {
     if (typeof template.computedVars === 'function') Object.assign(data, template.computedVars(data));
     const replaceVars = (text) => text ? text.replace(/\{\{(\w+)\}\}/g, (match, key) => data[key] !== undefined ? data[key] : match) : "";
 
+    // Thay thế đoạn render infoBoxHtml trong file JS/engine.js bằng đoạn này
     let infoBoxHtml = "";
     if (template.boxContent) {
         let qrSection = "";
@@ -111,7 +112,22 @@ function renderEmail() {
             let asset = SYSTEM_ASSETS[template.qrType];
             qrSection = `<td width="140" align="center" valign="middle" style="padding: 15px; border-left: 1px dashed #cbd5e0;"><a href="${asset.link}" target="_blank"><img src="${asset.img}" alt="QR" width="130" style="display: block; border: 1px solid #cbd5e0; padding: 4px; border-radius: 4px;"></a></td>`;
         }
-        infoBoxHtml = `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #f26f21; border-radius: 4px; margin: 15px 0;"><tr><td valign="middle" style="padding: 15px; font-family: sans-serif; font-size: 14.5px; color: #2d3748; line-height: 1.6;">${replaceVars(template.boxContent)}</td>${qrSection}</tr></table>`;
+        
+        // Sử dụng dấu mũi tên "➔" thay cho dấu chấm tròn (bullet) để đảm bảo Outlook hiển thị đồng nhất
+        let formattedBox = template.boxContent
+            .replace(/<ul[^>]*>/g, '<div style="margin: 0;">')
+            .replace(/<\/ul>/g, '</div>')
+            .replace(/<li[^>]*>/g, '<div style="margin-bottom: 6px; display: flex; align-items: flex-start;"><span style="margin-right: 8px; color: #f26f21;">➔</span><span>')
+            .replace(/<\/li>/g, '</span></div>');
+
+        infoBoxHtml = `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #f26f21; border-radius: 4px; margin: 15px 0;">
+            <tr>
+                <td valign="middle" style="padding: 15px; font-family: sans-serif; font-size: 14.5px; color: #2d3748; line-height: 1.6;">
+                    ${replaceVars(formattedBox)}
+                </td>
+                ${qrSection}
+            </tr>
+        </table>`;
     }
 
     let finalBody = replaceVars(template.body).replace('{INFO_BOX}', infoBoxHtml);
