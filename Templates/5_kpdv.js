@@ -19,9 +19,9 @@ window.SOC_TEMPLATES["t_kpdv"] = {
         <ul style="margin: 0; padding-left: 20px;">
             <li style="margin-bottom: 4px;"><b>Mã khách hàng:</b> <b>{{contractId}}</b></li>
             <li style="margin-bottom: 4px;"><b>Gói dịch vụ:</b> {{servicePackageKPDV}}</li>
-            <li style="margin-bottom: 4px;"><b>Tình trạng hiện tại:</b> <span style="background-color: #fef08a; padding: 2px 4px; color: #744210; font-weight: bold; border-radius: 3px;">[Tạm ngưng sử dụng - Vui lòng sửa nếu khác]</span></li>
+            <li style="margin-bottom: 4px;"><b>Tình trạng hiện tại:</b> <span style="background-color: #fef08a; padding: 2px 4px; color: #744210; font-weight: bold; border-radius: 3px;">Tạm ngưng sử dụng</span></li>
         </ul>
-        <p style="margin-bottom: 4px; font-style: italic;">➔ Chi tiết vui lòng xem tại ứng dụng <b>Hi FPT</b> (quét QR, đăng nhập bằng SĐT <b>{{phone}}</b>).</p>
+        <p style="margin-top: 10px; margin-bottom: 4px; font-style: italic;">➔ Chi tiết vui lòng xem tại ứng dụng <b>Hi FPT</b> (quét QR, đăng nhập bằng SĐT <b>{{phone}}</b>).</p>
         <p style="margin-bottom: 0; font-style: italic;">➔ Em gửi đường dẫn trực tiếp đến tính năng <a href="https://hi.fpt.vn/rev/qkr/KD50EDzN" style="color: #2b6cb0; font-weight: bold;">Khôi phục dịch vụ trên Hi FPT</a> để {{pronounLc}} tham khảo.</p>
     `,
     
