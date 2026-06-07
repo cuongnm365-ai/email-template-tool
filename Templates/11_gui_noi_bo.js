@@ -1,5 +1,5 @@
 window.SOC_TEMPLATES["t_gui_noi_bo"] = {
-    name: "Mẫu Mới 8: Gửi nội bộ",
+    name: "Mẫu gửi nội bộ",
     subject: "[{{source}}] {{isSOS}} - {{area}} - {{branch}} - {{contractId}} - {{summary}}",
     fields: [
         { id: "dept", label: "Gửi cho bộ phận", type: "select", options: [
