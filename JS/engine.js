@@ -140,14 +140,15 @@ function renderEmail() {
 }
 
 function copyEmailContent() {
-    // --- BẮT ĐẦU ĐOẠN TRACKING MỚI ---
-    // Kiểm tra xem GTM đã load chưa, nếu có thì đẩy dữ liệu về GA4
-    if (typeof dataLayer !== 'undefined') {
-        dataLayer.push({
-            'event': 'use_template',
-            'template_name': currentTemplateId // currentTemplateId đã có sẵn trong engine của anh
-        });
-    }
+    // Cách viết an toàn nhất để đảm bảo GTM luôn nhận được event
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+        'event': 'use_template',
+        'template_name': currentTemplateId || 'unknown_template'
+    });
+
+    // ... (phần code xử lý copy còn lại)
+}
     // --- KẾT THÚC ĐOẠN TRACKING ---
 
     const content = document.getElementById('emailContent').innerHTML;
