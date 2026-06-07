@@ -140,6 +140,16 @@ function renderEmail() {
 }
 
 function copyEmailContent() {
+    // --- BẮT ĐẦU ĐOẠN TRACKING MỚI ---
+    // Kiểm tra xem GTM đã load chưa, nếu có thì đẩy dữ liệu về GA4
+    if (typeof dataLayer !== 'undefined') {
+        dataLayer.push({
+            'event': 'use_template',
+            'template_name': currentTemplateId // currentTemplateId đã có sẵn trong engine của anh
+        });
+    }
+    // --- KẾT THÚC ĐOẠN TRACKING ---
+
     const content = document.getElementById('emailContent').innerHTML;
     const sig = document.getElementById('emailSignature').innerHTML;
     
