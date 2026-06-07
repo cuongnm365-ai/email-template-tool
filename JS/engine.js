@@ -1,6 +1,6 @@
 /* =========================================================
    BỘ NÃO XỬ LÝ (ENGINE) - SOC COMMAND CENTER
-   Bản cập nhật: Hỗ trợ Row, Ẩn Info, Giữ xuống dòng Textarea
+   Bản cập nhật: Tự động In hoa/Titlecase, Cảnh báo SĐT
    ========================================================= */
 
 const SYSTEM_ASSETS = {
@@ -27,21 +27,27 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btnCopy").addEventListener("click", copyEmailContent);
 });
 
-// Hàm hỗ trợ render các input
 function getFieldHtml(field) {
     let formatAttr = field.format ? `data-format="${field.format}"` : "";
+    let extraHtml = "";
+    
+    // Thêm cảnh báo nếu là trường Số điện thoại
+    if (field.id === "phone") {
+        extraHtml = `<div id="phone_error" style="display: none; color: #dc2626; font-size: 12px; margin-top: 4px; font-weight: 500;">Sai định dạng số ĐT (10-11 số, bắt đầu bằng 0)</div>`;
+    }
+
     if (field.type === "textarea") {
-        return `<textarea id="field_${field.id}" rows="4" class="soc-input template-input w-full" ${formatAttr} placeholder="${field.placeholder || ''}"></textarea>`;
+        return `<textarea id="field_${field.id}" rows="4" class="soc-input template-input w-full" ${formatAttr} placeholder="${field.placeholder || ''}"></textarea>${extraHtml}`;
     } else if (field.type === "select") {
         let html = `<select id="field_${field.id}" class="soc-input template-input w-full">`;
         field.options.forEach(opt => html += `<option value="${opt.value}">${opt.text}</option>`);
-        return html + `</select>`;
+        return html + `</select>${extraHtml}`;
     } else if (field.type === "date") {
-        return `<input type="date" id="field_${field.id}" class="soc-input template-input w-full">`;
+        return `<input type="date" id="field_${field.id}" class="soc-input template-input w-full">${extraHtml}`;
     } else if (field.type === "checkbox") {
-        return `<input type="checkbox" id="field_${field.id}" class="template-input cursor-pointer" style="transform: scale(1.3);">`;
+        return `<input type="checkbox" id="field_${field.id}" class="template-input cursor-pointer" style="transform: scale(1.3);">${extraHtml}`;
     } else {
-        return `<input type="text" id="field_${field.id}" class="soc-input template-input w-full" ${formatAttr} placeholder="${field.placeholder || ''}">`;
+        return `<input type="text" id="field_${field.id}" class="soc-input template-input w-full" ${formatAttr} placeholder="${field.placeholder || ''}">${extraHtml}`;
     }
 }
 
@@ -57,7 +63,6 @@ function renderForm(templateId) {
     const savedAgentName = localStorage.getItem("soc_agent_name") || "";
     let html = "";
 
-    // ĐÃ SỬA: Cho phép ẩn Tên Agent / Khách hàng nếu mẫu không cần thiết
     if (!template.hideCustomerInfo) {
         html += `
             <div class="mb-4">
@@ -83,7 +88,6 @@ function renderForm(templateId) {
 
     if (template.fields) {
         template.fields.forEach(field => {
-            // ĐÃ SỬA: Thêm định dạng "row" để ghép nhiều cột trên cùng 1 hàng
             if (field.type === "row") {
                 html += `<div class="flex gap-4 mb-4 items-end">`;
                 field.fields.forEach(sub => {
@@ -121,6 +125,36 @@ function renderForm(templateId) {
     document.querySelectorAll('.template-input').forEach(input => {
         input.addEventListener('input', (e) => {
             if (e.target.id === "field_staffName") localStorage.setItem("soc_agent_name", e.target.value);
+            
+            // TỰ ĐỘNG ÉP KIỂU CHỮ (UPPERCASE & TITLECASE)
+            let formatAttr = e.target.getAttribute('data-format');
+            if (formatAttr === 'uppercase') {
+                let start = e.target.selectionStart;
+                let end = e.target.selectionEnd;
+                e.target.value = e.target.value.toUpperCase();
+                e.target.setSelectionRange(start, end);
+            } else if (formatAttr === 'titlecase') {
+                let start = e.target.selectionStart;
+                let end = e.target.selectionEnd;
+                e.target.value = e.target.value.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+                e.target.setSelectionRange(start, end);
+            }
+
+            // KIỂM TRA ĐỊNH DẠNG SỐ ĐIỆN THOẠI
+            if (e.target.id === 'field_phone') {
+                let phoneErr = document.getElementById('phone_error');
+                const phoneRegex = /^0\d{9,10}$/; 
+                if (e.target.value && !phoneRegex.test(e.target.value)) {
+                    e.target.style.borderColor = "#dc2626"; // Đỏ
+                    e.target.style.outlineColor = "#dc2626";
+                    if(phoneErr) phoneErr.style.display = "block";
+                } else {
+                    e.target.style.borderColor = ""; // Trả về mặc định
+                    e.target.style.outlineColor = "";
+                    if(phoneErr) phoneErr.style.display = "none";
+                }
+            }
+
             renderEmail();
         });
     });
@@ -137,7 +171,6 @@ function renderEmail() {
             data[key] = input.checked;
         } else {
             let val = input.value;
-            // ĐÃ SỬA: Giữ nguyên định dạng xuống dòng (\n) và thụt đầu dòng (space) cho Textarea
             if (input.tagName.toLowerCase() === 'textarea' && val) {
                 val = val.replace(/\n/g, '<br>').replace(/ {2}/g, '&nbsp;&nbsp;');
             }
@@ -181,7 +214,6 @@ function renderEmail() {
     let agentName = (data.staffName && data.staffName !== "[staffName]") ? data.staffName : "[Tên Agent]";
     let finalSig = template.customSignature ? replaceVars(template.customSignature) : `Trân trọng,<br>Em <b>${agentName}</b> – CSKH FPT Telecom.`;
 
-    // Ẩn/Hiện chữ ký tự động nếu mẫu yêu cầu (Dùng cho mẫu nội bộ)
     if (template.hideSignature) finalSig = "";
 
     document.getElementById("emailSubject").innerText = replaceVars(template.subject);
@@ -196,7 +228,6 @@ function copyEmailContent() {
 
     const content = document.getElementById('emailContent').innerHTML;
     const sig = document.getElementById('emailSignature').innerHTML;
-    // Chèn chữ ký nếu có
     const fullHtml = sig ? `<div style="font-family: 'Aptos', 'Segoe UI', Arial, sans-serif; font-size: 14.5px; color: #2d3748;">${content}<br>${sig}</div>` : `<div style="font-family: 'Aptos', 'Segoe UI', Arial, sans-serif; font-size: 14.5px; color: #2d3748;">${content}</div>`;
     
     const blob = new Blob([fullHtml], { type: 'text/html' });
