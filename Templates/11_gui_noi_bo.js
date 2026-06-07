@@ -1,19 +1,18 @@
 window.SOC_TEMPLATES = window.SOC_TEMPLATES || {};
 
 window.SOC_TEMPLATES["t_gui_noi_bo"] = {
-    name: "Mẫu Mới 8: Gửi nội bộ (DVKH/TIN...)",
+    name: "Mẫu Mới 8: Gửi nội bộ (DVKH/TIN/PNC...)",
     hideCustomerInfo: true, // Ẩn tên Agent và danh xưng
-    hideSignature: true, // Ẩn chữ ký cá nhân do nội bộ dùng "Đội ngũ SOC"
-    subject: "[{{source}}] {{isSOS}} - {{area}} - {{branch}} - {{contractId}} - [Tóm tắt vấn đề]",
+    hideSignature: true, // Ẩn chữ ký tự động để người dùng xài chữ ký cá nhân trên Outlook
+    subject: "{{sourcePrefix}}{{sosPrefix}}{{area}} - {{branch}} - {{contractId}} - [Tóm tắt vấn đề]",
     
     fields: [
         {
-            type: "row", // Dòng 1: Chọn bộ phận gửi (chọn nhiều)
+            type: "row", // Dòng 1: Chọn bộ phận gửi (chọn nhiều) - Bỏ P.Cước, chia 3 cột
             fields: [
-                { id: "dept_DVKH", label: "Gửi DVKH", type: "checkbox", width: "w-1/4" },
-                { id: "dept_TIN", label: "Gửi TIN", type: "checkbox", width: "w-1/4" },
-                { id: "dept_CUS", label: "Gửi P.Cước", type: "checkbox", width: "w-1/4" },
-                { id: "dept_OTHER", label: "Gửi Khác", type: "checkbox", width: "w-1/4" }
+                { id: "dept_DVKH", label: "Gửi DVKH", type: "checkbox", width: "w-1/3" },
+                { id: "dept_TIN", label: "Gửi TIN/PNC", type: "checkbox", width: "w-1/3" },
+                { id: "dept_OTHER", label: "Khác", type: "checkbox", width: "w-1/3" }
             ]
         },
         // Thêm dòng nhập liệu cho bộ phận Khác (Luôn in hoa khi xuất ra)
@@ -22,6 +21,7 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
             type: "row", // Dòng 2: Nguồn và Khẩn cấp cùng 1 hàng
             fields: [
                 { id: "source", label: "Nguồn khiếu nại", type: "select", options: [
+                    {value: "", text: "-- Không bắt buộc --"},
                     {value: "KN MXH", text: "KN MXH"},
                     {value: "KN Email", text: "KN Email"}
                 ], width: "w-1/2" },
@@ -29,12 +29,12 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
             ]
         },
         // Gộp Link Post và Email thành 1 trường nhập liệu, hiển thị động
-        { id: "sourceDetail", label: "Link bài Post / Địa chỉ Email (Tùy nguồn)", type: "text", placeholder: "Dán link bài viết hoặc Email của KH..." },
+        { id: "sourceDetail", label: "Link bài Post / Địa chỉ Email", type: "text", placeholder: "Dán link bài viết hoặc Email của KH..." },
         {
             type: "row",
             fields: [
                 { id: "area", label: "Khu vực", type: "text", placeholder: "Ví dụ: HCM", width: "w-1/2" },
-                { id: "branch", label: "Chi nhánh", type: "text", placeholder: "Ví dụ: CN Quận 7", width: "w-1/2" }
+                { id: "branch", label: "Chi nhánh", type: "text", placeholder: "Ví dụ: SG01", width: "w-1/2" }
             ]
         },
         {
@@ -54,12 +54,10 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
         // Gom các bộ phận được tick vào mảng
         let depts = [];
         if (data.dept_DVKH) depts.push("DVKH");
-        if (data.dept_TIN) depts.push("TIN");
-        if (data.dept_CUS) depts.push("P.CƯỚC"); // Đảm bảo in hoa
+        if (data.dept_TIN) depts.push("TIN/PNC");
         
         // Logic xử lý khi chọn Gửi Khác
         if (data.dept_OTHER) {
-            // Kiểm tra xem người dùng có nhập nội dung vào ô không, nếu có thì DÙNG HÀM .toUpperCase() ĐỂ ÉP IN HOA TẤT CẢ
             let otherDept = (data.dept_OTHER_text && data.dept_OTHER_text !== "[dept_OTHER_text]") 
                             ? data.dept_OTHER_text.toUpperCase() 
                             : "CÁC BP LIÊN QUAN";
@@ -68,19 +66,28 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
         
         let deptStr = depts.length > 0 ? depts.join(" / ") : "[Chưa chọn bộ phận]";
 
-        // Render động thẻ Link HTML hoặc Mailto tùy vào nguồn chọn
+        // Xử lý logic Nguồn tùy chọn (Nếu không có sẽ không xuất hiện dấu -)
+        let sourcePrefix = "";
         let extraHTML = "";
-        if (data.sourceDetail && data.sourceDetail !== "[sourceDetail]") {
-            if (data.source === "KN MXH") {
-                extraHTML = `<li><b>Link bài Post:</b> <a href="${data.sourceDetail}" style="color: #2b6cb0; text-decoration: underline;">Nhấn để xem</a></li>`;
-            } else if (data.source === "KN Email") {
-                extraHTML = `<li><b>Email KH:</b> <a href="mailto:${data.sourceDetail}" style="color: #2b6cb0;">${data.sourceDetail}</a></li>`;
+        if (data.source && data.source !== "[source]") {
+            sourcePrefix = `[${data.source}] - `; // Tự động thêm gạch nối nếu có chọn
+            
+            if (data.sourceDetail && data.sourceDetail !== "[sourceDetail]") {
+                if (data.source === "KN MXH") {
+                    extraHTML = `<li><b>Link bài Post:</b> <a href="${data.sourceDetail}" style="color: #2b6cb0; text-decoration: underline;">Nhấn để xem</a></li>`;
+                } else if (data.source === "KN Email") {
+                    extraHTML = `<li><b>Email KH:</b> <a href="mailto:${data.sourceDetail}" style="color: #2b6cb0;">${data.sourceDetail}</a></li>`;
+                }
             }
         }
 
+        // Xử lý logic SOS có gạch nối
+        let sosPrefix = data.isSOS ? "[Khẩn Cấp/SOS] - " : "";
+
         return {
-            isSOS: data.isSOS ? "[Khẩn Cấp/SOS]" : "",
-            dept: deptStr, // Chuỗi bộ phận đã được đảm bảo In Hoa 100%
+            sourcePrefix: sourcePrefix,
+            sosPrefix: sosPrefix,
+            dept: deptStr,
             extraInfo: extraHTML
         };
     },
@@ -104,9 +111,6 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
         <div style="padding-left: 15px; margin-top: 4px; border-left: 3px solid #e2e8f0;">{{socAction}}</div><br>
         
         <b>4. Đề xuất/Đề nghị xử lý:</b><br>
-        <div style="padding-left: 15px; margin-top: 4px; border-left: 3px solid #e2e8f0;">{{proposal}}</div><br><br>
-        
-        Trân trọng,<br>
-        <b>Đội ngũ SOC.</b>
+        <div style="padding-left: 15px; margin-top: 4px; border-left: 3px solid #e2e8f0;">{{proposal}}</div>
     `
 };
