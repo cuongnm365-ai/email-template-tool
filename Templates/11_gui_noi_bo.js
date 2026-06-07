@@ -8,14 +8,13 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
     
     fields: [
         {
-            type: "row", // Dòng 1: Chọn bộ phận gửi (chọn nhiều) - Bỏ P.Cước, chia 3 cột
+            type: "row", // Dòng 1: Chọn bộ phận gửi
             fields: [
                 { id: "dept_DVKH", label: "Gửi DVKH", type: "checkbox", width: "w-1/3" },
                 { id: "dept_TIN", label: "Gửi TIN/PNC", type: "checkbox", width: "w-1/3" },
-                { id: "dept_OTHER", label: "Khác", type: "checkbox", width: "w-1/3" }
+                { id: "dept_OTHER", label: "Gửi Khác", type: "checkbox", width: "w-1/3" }
             ]
         },
-        // Thêm dòng nhập liệu cho bộ phận Khác (Luôn in hoa khi xuất ra)
         { id: "dept_OTHER_text", label: "Nhập tên bộ phận khác (Nếu tick chọn 'Gửi Khác')", type: "text", format: "uppercase", placeholder: "Ví dụ: CSKH, HO, PMB..." },
         {
             type: "row", // Dòng 2: Nguồn và Khẩn cấp cùng 1 hàng
@@ -28,13 +27,12 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
                 { id: "isSOS", label: "Khẩn cấp (SOS)", type: "checkbox", width: "w-1/2" }
             ]
         },
-        // Gộp Link Post và Email thành 1 trường nhập liệu, hiển thị động
-        { id: "sourceDetail", label: "Link bài Post / Địa chỉ Email", type: "text", placeholder: "Dán link bài viết hoặc Email của KH..." },
+        { id: "sourceDetail", label: "Link bài Post / Địa chỉ Email (Tùy nguồn)", type: "text", placeholder: "Dán link bài viết hoặc Email của KH..." },
         {
             type: "row",
             fields: [
                 { id: "area", label: "Khu vực", type: "text", placeholder: "Ví dụ: HCM", width: "w-1/2" },
-                { id: "branch", label: "Chi nhánh", type: "text", placeholder: "Ví dụ: SG01", width: "w-1/2" }
+                { id: "branch", label: "Chi nhánh", type: "text", placeholder: "Ví dụ: CN Quận 7", width: "w-1/2" }
             ]
         },
         {
@@ -42,21 +40,19 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
             fields: [
                 { id: "contractId", label: "Số hợp đồng", type: "text", format: "uppercase", width: "w-1/3" },
                 { id: "phone", label: "Số điện thoại", type: "text", width: "w-1/3" },
-                { id: "address", label: "Địa chỉ", type: "text", width: "w-1/3" }
+                { id: "address", label: "Địa chỉ", type: "text", format: "titlecase", width: "w-1/3" } // Đã gắn format titlecase
             ]
         },
-        { id: "complaintDetails", label: "Nội dung phản ánh/khiếu nại", type: "textarea", placeholder: "Nhập nội dung KH phản ánh... (Có thể enter xuống dòng hoặc thụt lề)" },
-        { id: "socAction", label: "Thông tin xử lý từ SOC", type: "textarea", placeholder: "Các bước SOC đã thực hiện/care KH..." },
-        { id: "proposal", label: "Đề xuất/Đề nghị xử lý", type: "textarea", placeholder: "Đề nghị TIN hoặc DVKH xử lý..." }
+        { id: "complaintDetails", label: "Nội dung phản ánh/khiếu nại", type: "textarea", placeholder: "Nhập nội dung KH phản ánh..." },
+        { id: "socAction", label: "Thông tin xử lý từ SOC", type: "textarea", placeholder: "Các bước SOC đã thực hiện..." },
+        { id: "proposal", label: "Đề xuất/Đề nghị xử lý", type: "textarea", placeholder: "Đề nghị xử lý..." }
     ],
 
     computedVars: function(data) {
-        // Gom các bộ phận được tick vào mảng
         let depts = [];
         if (data.dept_DVKH) depts.push("DVKH");
         if (data.dept_TIN) depts.push("TIN/PNC");
         
-        // Logic xử lý khi chọn Gửi Khác
         if (data.dept_OTHER) {
             let otherDept = (data.dept_OTHER_text && data.dept_OTHER_text !== "[dept_OTHER_text]") 
                             ? data.dept_OTHER_text.toUpperCase() 
@@ -66,11 +62,10 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
         
         let deptStr = depts.length > 0 ? depts.join(" / ") : "[Chưa chọn bộ phận]";
 
-        // Xử lý logic Nguồn tùy chọn (Nếu không có sẽ không xuất hiện dấu -)
         let sourcePrefix = "";
         let extraHTML = "";
         if (data.source && data.source !== "[source]") {
-            sourcePrefix = `[${data.source}] - `; // Tự động thêm gạch nối nếu có chọn
+            sourcePrefix = `[${data.source}] - `;
             
             if (data.sourceDetail && data.sourceDetail !== "[sourceDetail]") {
                 if (data.source === "KN MXH") {
@@ -81,7 +76,6 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
             }
         }
 
-        // Xử lý logic SOS có gạch nối
         let sosPrefix = data.isSOS ? "[Khẩn Cấp/SOS] - " : "";
 
         return {
@@ -92,6 +86,7 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
         };
     },
     
+    // Đã thay đổi mã màu #e2e8f0 thành #f26f21 (Màu cam) cho thanh gạch dọc
     body: `
         Dear <b>{{dept}}</b>,<br><br>
         SOC tiếp nhận thông tin phản ánh/khiếu nại từ Khách hàng với chi tiết như sau:<br><br>
@@ -105,12 +100,12 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
         </ul><br>
         
         <b>2. Thông tin phản ánh/khiếu nại từ KH:</b><br>
-        <div style="padding-left: 15px; margin-top: 4px; border-left: 3px solid #e2e8f0;">{{complaintDetails}}</div><br>
+        <div style="padding-left: 15px; margin-top: 4px; border-left: 3px solid #f26f21;">{{complaintDetails}}</div><br>
         
         <b>3. Thông tin xử lý từ SOC:</b><br>
-        <div style="padding-left: 15px; margin-top: 4px; border-left: 3px solid #e2e8f0;">{{socAction}}</div><br>
+        <div style="padding-left: 15px; margin-top: 4px; border-left: 3px solid #f26f21;">{{socAction}}</div><br>
         
         <b>4. Đề xuất/Đề nghị xử lý:</b><br>
-        <div style="padding-left: 15px; margin-top: 4px; border-left: 3px solid #e2e8f0;">{{proposal}}</div>
+        <div style="padding-left: 15px; margin-top: 4px; border-left: 3px solid #f26f21;">{{proposal}}</div>
     `
 };
