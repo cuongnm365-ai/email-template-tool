@@ -1,10 +1,6 @@
-window.SOC_TEMPLATES = window.SOC_TEMPLATES || {};
-
 window.SOC_TEMPLATES["t_gui_noi_bo"] = {
     name: "Mẫu Mới 8: Gửi nội bộ",
-    // Người dùng tự bôi đen copy tiêu đề này
     subject: "[{{source}}] {{isSOS}} - {{area}} - {{branch}} - {{contractId}} - {{summary}}",
-    
     fields: [
         { id: "dept", label: "Gửi cho bộ phận", type: "select", options: [
             {value: "DVKH", text: "DVKH"},
@@ -20,27 +16,28 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
         { id: "contractId", label: "Số hợp đồng", type: "text", format: "uppercase" },
         { id: "phone", label: "Số điện thoại", type: "text" },
         { id: "address", label: "Địa chỉ", type: "text" },
-        // Trường động dựa trên nguồn KN
         { id: "extraLink", label: "Link bài Post (nếu là MXH)", type: "text", placeholder: "Dán link bài viết..." },
         { id: "emailContact", label: "Địa chỉ Email (nếu là Email)", type: "text", placeholder: "customer@gmail.com" },
-        
         { id: "summary", label: "Tóm tắt vấn đề", type: "text" },
         { id: "complaintDetails", label: "Nội dung phản ánh/khiếu nại", type: "textarea" },
         { id: "socAction", label: "Thông tin xử lý từ SOC", type: "textarea" },
         { id: "proposal", label: "Đề xuất/Đề nghị xử lý", type: "textarea" }
     ],
-
     computedVars: function(data) {
+        let extraHTML = "";
+        if (data.source === "KN MXH" && data.extraLink) {
+            extraHTML = `<li><b>Link bài Post:</b> ${data.extraLink}</li>`;
+        } else if (data.source === "KN Email" && data.emailContact) {
+            extraHTML = `<li><b>Email KH:</b> ${data.emailContact}</li>`;
+        }
         return {
             isSOS: data.isSOS ? "[Khẩn Cấp/SOS]" : "",
-            extraInfo: (data.source === "KN MXH") ? `<li><b>Link bài Post:</b> ${data.extraLink}</li>` : `<li><b>Email KH:</b> ${data.emailContact}</li>`
+            extraInfo: extraHTML
         };
     },
-    
     body: `
         Dear {{dept}},<br><br>
         SOC tiếp nhận thông tin phản ánh/khiếu nại từ Khách hàng với chi tiết như sau:<br><br>
-        
         <b>1. Thông tin khách hàng:</b>
         <ul style="margin: 0; padding-left: 20px;">
             <li><b>Số hợp đồng:</b> {{contractId}}</li>
@@ -48,17 +45,12 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
             <li><b>Địa chỉ:</b> {{address}}</li>
             {{extraInfo}}
         </ul><br>
-        
         <b>2. Thông tin phản ánh/khiếu nại từ KH:</b><br>
         {{complaintDetails}}<br><br>
-        
         <b>3. Thông tin xử lý từ SOC:</b><br>
         {{socAction}}<br><br>
-        
         <b>4. Đề xuất/Đề nghị xử lý:</b><br>
         {{proposal}}<br><br>
-        
         Trân trọng,<br>
-        Đội ngũ SOC.
-    `
+        Đội ngũ SOC.`
 };
