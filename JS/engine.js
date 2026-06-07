@@ -1,6 +1,6 @@
 /* =========================================================
    BỘ NÃO XỬ LÝ (ENGINE) - SOC COMMAND CENTER
-   Bản cập nhật: Giữ nguyên Format Outlook + Fix lỗi Checkbox
+   Bản cập nhật: Giữ nguyên định dạng + Hỗ trợ Checkbox
    ========================================================= */
 
 const SYSTEM_ASSETS = {
@@ -63,6 +63,7 @@ function renderForm(templateId) {
         template.fields.forEach(field => {
             html += `<div class="mb-4"><label class="soc-label">${field.label}:</label>`;
             let formatAttr = field.format ? `data-format="${field.format}"` : "";
+            
             if (field.type === "textarea") {
                 html += `<textarea id="field_${field.id}" rows="3" class="soc-input template-input" ${formatAttr} placeholder="${field.placeholder || ''}"></textarea>`;
             } else if (field.type === "select") {
@@ -72,8 +73,8 @@ function renderForm(templateId) {
             } else if (field.type === "date") {
                 html += `<input type="date" id="field_${field.id}" class="soc-input template-input">`;
             } else if (field.type === "checkbox") {
-                // ĐÃ FIX: Bổ sung logic render ô checkbox cho form nội bộ
-                html += `<input type="checkbox" id="field_${field.id}" class="template-input ml-2" style="transform: scale(1.2);">`;
+                // ĐIỂM THÊM MỚI ĐỂ NHẬN DIỆN CHECKBOX (Giữ nguyên các thẻ khác của anh)
+                html += `<input type="checkbox" id="field_${field.id}" class="template-input ml-2" style="transform: scale(1.3);">`;
             } else {
                 html += `<input type="text" id="field_${field.id}" class="soc-input template-input" ${formatAttr} placeholder="${field.placeholder || ''}">`;
             }
@@ -97,9 +98,14 @@ function renderEmail() {
     let data = {};
     document.querySelectorAll('.template-input').forEach(input => {
         let key = input.id.replace('field_', '');
-        // ĐÃ FIX: Lấy giá trị checkbox đúng cách để hiển thị [Khẩn Cấp/SOS]
-        data[key] = (input.type === 'checkbox') ? input.checked : (input.value || `[${key}]`);
+        // ĐIỂM THÊM MỚI: Xử lý lấy giá trị Checkbox
+        if (input.type === 'checkbox') {
+            data[key] = input.checked;
+        } else {
+            data[key] = input.value || `[${key}]`;
+        }
     });
+    
     data.honorific = data.gender;
     data.pronoun = (data.gender === 'Doanh Nghiệp') ? 'Quý công ty' : data.gender;
     data.pronounLc = data.pronoun.toLowerCase();
@@ -108,7 +114,6 @@ function renderEmail() {
     if (typeof template.computedVars === 'function') Object.assign(data, template.computedVars(data));
     const replaceVars = (text) => text ? text.replace(/\{\{(\w+)\}\}/g, (match, key) => data[key] !== undefined ? data[key] : match) : "";
 
-    // GIỮ NGUYÊN HOÀN TOÀN FORMAT OUTLOOK CỦA ANH
     let infoBoxHtml = "";
     if (template.boxContent) {
         let qrSection = "";
@@ -163,7 +168,6 @@ function copyEmailContent() {
         alert("Trình duyệt chặn copy. Hãy bôi đen nội dung và nhấn Ctrl+C.");
     });
 }
-
 function showToast(msg) {
     const toast = document.getElementById('toast');
     document.getElementById('toast-message').innerText = msg;
