@@ -1,7 +1,7 @@
 window.SOC_TEMPLATES = window.SOC_TEMPLATES || {};
 
 window.SOC_TEMPLATES["t_gui_noi_bo"] = {
-    name: "Mẫu Mới 7: Gửi báo cáo Nội bộ (DVKH/TIN)",
+    name: "Mẫu Mới 8: Gửi nội bộ",
     // Người dùng tự bôi đen copy tiêu đề này
     subject: "[{{source}}] {{isSOS}} - {{area}} - {{branch}} - {{contractId}} - {{summary}}",
     
