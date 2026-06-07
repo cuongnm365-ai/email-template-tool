@@ -1,6 +1,6 @@
 /* =========================================================
    BỘ NÃO XỬ LÝ (ENGINE) - SOC COMMAND CENTER
-   Bản cập nhật: Giữ nguyên định dạng + Hỗ trợ Checkbox
+   Bản cập nhật: Hỗ trợ Row, Ẩn Info, Giữ xuống dòng Textarea
    ========================================================= */
 
 const SYSTEM_ASSETS = {
@@ -27,6 +27,24 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btnCopy").addEventListener("click", copyEmailContent);
 });
 
+// Hàm hỗ trợ render các input
+function getFieldHtml(field) {
+    let formatAttr = field.format ? `data-format="${field.format}"` : "";
+    if (field.type === "textarea") {
+        return `<textarea id="field_${field.id}" rows="4" class="soc-input template-input w-full" ${formatAttr} placeholder="${field.placeholder || ''}"></textarea>`;
+    } else if (field.type === "select") {
+        let html = `<select id="field_${field.id}" class="soc-input template-input w-full">`;
+        field.options.forEach(opt => html += `<option value="${opt.value}">${opt.text}</option>`);
+        return html + `</select>`;
+    } else if (field.type === "date") {
+        return `<input type="date" id="field_${field.id}" class="soc-input template-input w-full">`;
+    } else if (field.type === "checkbox") {
+        return `<input type="checkbox" id="field_${field.id}" class="template-input cursor-pointer" style="transform: scale(1.3);">`;
+    } else {
+        return `<input type="text" id="field_${field.id}" class="soc-input template-input w-full" ${formatAttr} placeholder="${field.placeholder || ''}">`;
+    }
+}
+
 function renderForm(templateId) {
     const formContainer = document.getElementById("dynamicForm");
     const template = window.SOC_TEMPLATES[templateId];
@@ -37,48 +55,65 @@ function renderForm(templateId) {
     }
 
     const savedAgentName = localStorage.getItem("soc_agent_name") || "";
-    
-    let html = `
-        <div class="mb-4">
-            <label class="soc-label">Tên Agent xử lý:</label>
-            <input type="text" id="field_staffName" class="soc-input template-input" data-format="titlecase" placeholder="Ví dụ: Nguyễn Văn A" value="${savedAgentName}">
-        </div>
-        <div class="flex gap-3 mb-4">
-            <div class="w-1/3">
-                <label class="soc-label">Danh xưng:</label>
-                <select id="field_gender" class="soc-input template-input">
-                    <option value="Anh">Anh</option><option value="Chị">Chị</option>
-                    <option value="Cô">Cô</option><option value="Chú">Chú</option>
-                    <option value="Bác">Bác</option><option value="Doanh Nghiệp">Doanh Nghiệp</option>
-                </select>
+    let html = "";
+
+    // ĐÃ SỬA: Cho phép ẩn Tên Agent / Khách hàng nếu mẫu không cần thiết
+    if (!template.hideCustomerInfo) {
+        html += `
+            <div class="mb-4">
+                <label class="soc-label">Tên Agent xử lý:</label>
+                <input type="text" id="field_staffName" class="soc-input template-input w-full" data-format="titlecase" placeholder="Ví dụ: Nguyễn Văn A" value="${savedAgentName}">
             </div>
-            <div class="w-2/3">
-                <label class="soc-label">Tên khách hàng:</label>
-                <input type="text" id="field_customerName" class="soc-input template-input" data-format="titlecase" placeholder="Nhập tên KH">
+            <div class="flex gap-3 mb-4">
+                <div class="w-1/3">
+                    <label class="soc-label">Danh xưng:</label>
+                    <select id="field_gender" class="soc-input template-input w-full">
+                        <option value="Anh">Anh</option><option value="Chị">Chị</option>
+                        <option value="Cô">Cô</option><option value="Chú">Chú</option>
+                        <option value="Bác">Bác</option><option value="Doanh Nghiệp">Doanh Nghiệp</option>
+                    </select>
+                </div>
+                <div class="w-2/3">
+                    <label class="soc-label">Tên khách hàng:</label>
+                    <input type="text" id="field_customerName" class="soc-input template-input w-full" data-format="titlecase" placeholder="Nhập tên KH">
+                </div>
             </div>
-        </div>
-    `;
+        `;
+    }
 
     if (template.fields) {
         template.fields.forEach(field => {
-            html += `<div class="mb-4"><label class="soc-label">${field.label}:</label>`;
-            let formatAttr = field.format ? `data-format="${field.format}"` : "";
-            
-            if (field.type === "textarea") {
-                html += `<textarea id="field_${field.id}" rows="3" class="soc-input template-input" ${formatAttr} placeholder="${field.placeholder || ''}"></textarea>`;
-            } else if (field.type === "select") {
-                html += `<select id="field_${field.id}" class="soc-input template-input">`;
-                field.options.forEach(opt => html += `<option value="${opt.value}">${opt.text}</option>`);
-                html += `</select>`;
-            } else if (field.type === "date") {
-                html += `<input type="date" id="field_${field.id}" class="soc-input template-input">`;
-            } else if (field.type === "checkbox") {
-                // ĐIỂM THÊM MỚI ĐỂ NHẬN DIỆN CHECKBOX (Giữ nguyên các thẻ khác của anh)
-                html += `<input type="checkbox" id="field_${field.id}" class="template-input ml-2" style="transform: scale(1.3);">`;
+            // ĐÃ SỬA: Thêm định dạng "row" để ghép nhiều cột trên cùng 1 hàng
+            if (field.type === "row") {
+                html += `<div class="flex gap-4 mb-4 items-end">`;
+                field.fields.forEach(sub => {
+                    let wCls = sub.width || "flex-1";
+                    html += `<div class="${wCls}">`;
+                    if (sub.type !== "checkbox") {
+                        html += `<label class="soc-label block mb-1">${sub.label}:</label>`;
+                        html += getFieldHtml(sub);
+                    } else {
+                        html += `<div class="flex items-center h-[38px] pb-2">`;
+                        html += getFieldHtml(sub);
+                        html += `<label for="field_${sub.id}" class="soc-label mb-0 ml-2 cursor-pointer font-medium">${sub.label}</label>`;
+                        html += `</div>`;
+                    }
+                    html += `</div>`;
+                });
+                html += `</div>`;
             } else {
-                html += `<input type="text" id="field_${field.id}" class="soc-input template-input" ${formatAttr} placeholder="${field.placeholder || ''}">`;
+                html += `<div class="mb-4">`;
+                if (field.type !== "checkbox") {
+                    html += `<label class="soc-label block mb-1">${field.label}:</label>`;
+                    html += getFieldHtml(field);
+                } else {
+                    html += `<div class="flex items-center">`;
+                    html += getFieldHtml(field);
+                    html += `<label for="field_${field.id}" class="soc-label mb-0 ml-2 cursor-pointer font-medium">${field.label}</label>`;
+                    html += `</div>`;
+                }
+                html += `</div>`;
             }
-            html += `</div>`;
         });
     }
 
@@ -98,16 +133,20 @@ function renderEmail() {
     let data = {};
     document.querySelectorAll('.template-input').forEach(input => {
         let key = input.id.replace('field_', '');
-        // ĐIỂM THÊM MỚI: Xử lý lấy giá trị Checkbox
         if (input.type === 'checkbox') {
             data[key] = input.checked;
         } else {
-            data[key] = input.value || `[${key}]`;
+            let val = input.value;
+            // ĐÃ SỬA: Giữ nguyên định dạng xuống dòng (\n) và thụt đầu dòng (space) cho Textarea
+            if (input.tagName.toLowerCase() === 'textarea' && val) {
+                val = val.replace(/\n/g, '<br>').replace(/ {2}/g, '&nbsp;&nbsp;');
+            }
+            data[key] = val || `[${key}]`;
         }
     });
     
-    data.honorific = data.gender;
-    data.pronoun = (data.gender === 'Doanh Nghiệp') ? 'Quý công ty' : data.gender;
+    data.honorific = data.gender || "Anh/Chị";
+    data.pronoun = (data.gender === 'Doanh Nghiệp') ? 'Quý công ty' : (data.gender || "Anh/Chị");
     data.pronounLc = data.pronoun.toLowerCase();
     if (data.gender === 'Doanh Nghiệp') data.honorific = 'Quý công ty';
 
@@ -139,8 +178,11 @@ function renderEmail() {
     }
 
     let finalBody = replaceVars(template.body).replace('{INFO_BOX}', infoBoxHtml);
-    let agentName = data.staffName !== "[staffName]" ? data.staffName : "[Tên Agent]";
+    let agentName = (data.staffName && data.staffName !== "[staffName]") ? data.staffName : "[Tên Agent]";
     let finalSig = template.customSignature ? replaceVars(template.customSignature) : `Trân trọng,<br>Em <b>${agentName}</b> – CSKH FPT Telecom.`;
+
+    // Ẩn/Hiện chữ ký tự động nếu mẫu yêu cầu (Dùng cho mẫu nội bộ)
+    if (template.hideSignature) finalSig = "";
 
     document.getElementById("emailSubject").innerText = replaceVars(template.subject);
     document.getElementById("emailContent").innerHTML = finalBody;
@@ -149,16 +191,14 @@ function renderEmail() {
 
 function copyEmailContent() {
     const activeTemplate = currentTemplateId || "chua_chon_mau";
-
     window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-        'event': 'use_template',
-        'template_name': activeTemplate
-    });
+    window.dataLayer.push({ 'event': 'use_template', 'template_name': activeTemplate });
 
     const content = document.getElementById('emailContent').innerHTML;
     const sig = document.getElementById('emailSignature').innerHTML;
-    const fullHtml = `<div style="font-family: 'Aptos', 'Segoe UI', Arial, sans-serif; font-size: 14.5px; color: #2d3748;">${content}<br>${sig}</div>`;
+    // Chèn chữ ký nếu có
+    const fullHtml = sig ? `<div style="font-family: 'Aptos', 'Segoe UI', Arial, sans-serif; font-size: 14.5px; color: #2d3748;">${content}<br>${sig}</div>` : `<div style="font-family: 'Aptos', 'Segoe UI', Arial, sans-serif; font-size: 14.5px; color: #2d3748;">${content}</div>`;
+    
     const blob = new Blob([fullHtml], { type: 'text/html' });
     const data = [new ClipboardItem({ 'text/html': blob })];
     
