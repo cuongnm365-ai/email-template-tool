@@ -140,34 +140,29 @@ function renderEmail() {
 }
 
 function copyEmailContent() {
-    // Cách viết an toàn nhất để đảm bảo GTM luôn nhận được event
+    // 1. Lấy ID mẫu hiện tại từ biến global (đã có sẵn trong engine của anh)
+    const activeTemplate = currentTemplateId || "chua_chon_mau";
+
+    // 2. Gửi tín hiệu vào Data Layer
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
         'event': 'use_template',
-        'template_name': currentTemplateId || 'unknown_template'
+        'template_name': activeTemplate
     });
 
-    // ... (phần code xử lý copy còn lại)
-}
-    // --- KẾT THÚC ĐOẠN TRACKING ---
-
+    // --- (Phần code copy giữ nguyên như cũ) ---
     const content = document.getElementById('emailContent').innerHTML;
     const sig = document.getElementById('emailSignature').innerHTML;
-    
-    // Bọc định dạng Aptos ngay tại đây để Outlook nhận diện
     const fullHtml = `<div style="font-family: 'Aptos', 'Segoe UI', Arial, sans-serif; font-size: 14.5px; color: #2d3748;">${content}<br>${sig}</div>`;
-    
-    // Sử dụng Blob để ép trình duyệt copy ở định dạng text/html
     const blob = new Blob([fullHtml], { type: 'text/html' });
     const data = [new ClipboardItem({ 'text/html': blob })];
     
     navigator.clipboard.write(data).then(() => {
-        showToast("Đã copy NỘI DUNG & ĐỊNH DẠNG chuẩn!");
+        showToast("Đã copy thành công!");
     }).catch(() => {
         alert("Trình duyệt chặn copy. Hãy bôi đen nội dung và nhấn Ctrl+C.");
     });
 }
-
 function showToast(msg) {
     const toast = document.getElementById('toast');
     document.getElementById('toast-message').innerText = msg;
