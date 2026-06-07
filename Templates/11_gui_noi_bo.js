@@ -2,13 +2,13 @@ window.SOC_TEMPLATES = window.SOC_TEMPLATES || {};
 
 window.SOC_TEMPLATES["t_gui_noi_bo"] = {
     name: "Mẫu Mới 8: Gửi nội bộ (DVKH/TIN/PNC...)",
-    hideCustomerInfo: true, // Ẩn tên Agent và danh xưng
-    hideSignature: true, // Ẩn chữ ký tự động để người dùng xài chữ ký cá nhân trên Outlook
+    hideCustomerInfo: true, 
+    hideSignature: true, 
     subject: "{{sourcePrefix}}{{sosPrefix}}{{area}} - {{branch}} - {{contractId}} - [Tóm tắt vấn đề]",
     
     fields: [
         {
-            type: "row", // Dòng 1: Chọn bộ phận gửi
+            type: "row",
             fields: [
                 { id: "dept_DVKH", label: "Gửi DVKH", type: "checkbox", width: "w-1/3" },
                 { id: "dept_TIN", label: "Gửi TIN/PNC", type: "checkbox", width: "w-1/3" },
@@ -17,7 +17,7 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
         },
         { id: "dept_OTHER_text", label: "Nhập tên bộ phận khác (Nếu tick chọn 'Gửi Khác')", type: "text", format: "uppercase", placeholder: "Ví dụ: CSKH, HO, PMB..." },
         {
-            type: "row", // Dòng 2: Nguồn và Khẩn cấp cùng 1 hàng
+            type: "row", 
             fields: [
                 { id: "source", label: "Nguồn khiếu nại", type: "select", options: [
                     {value: "", text: "-- Không bắt buộc --"},
@@ -40,7 +40,7 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
             fields: [
                 { id: "contractId", label: "Số hợp đồng", type: "text", format: "uppercase", width: "w-1/3" },
                 { id: "phone", label: "Số điện thoại", type: "text", width: "w-1/3" },
-                { id: "address", label: "Địa chỉ", type: "text", format: "titlecase", width: "w-1/3" } // Đã gắn format titlecase
+                { id: "address", label: "Địa chỉ", type: "text", format: "titlecase", width: "w-1/3" }
             ]
         },
         { id: "complaintDetails", label: "Nội dung phản ánh/khiếu nại", type: "textarea", placeholder: "Nhập nội dung KH phản ánh..." },
@@ -86,7 +86,7 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
         };
     },
     
-    // Đã thay đổi mã màu #e2e8f0 thành #f26f21 (Màu cam) cho thanh gạch dọc
+    // Đã chuyển các thẻ <div> thành <table> để trị lỗi mất viền trên Outlook
     body: `
         Dear <b>{{dept}}</b>,<br><br>
         SOC tiếp nhận thông tin phản ánh/khiếu nại từ Khách hàng với chi tiết như sau:<br><br>
@@ -100,12 +100,18 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
         </ul><br>
         
         <b>2. Thông tin phản ánh/khiếu nại từ KH:</b><br>
-        <div style="padding-left: 15px; margin-top: 4px; border-left: 3px solid #f26f21;">{{complaintDetails}}</div><br>
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 4px; border-left: 3px solid #f26f21;">
+            <tr><td style="padding-left: 15px;">{{complaintDetails}}</td></tr>
+        </table><br>
         
         <b>3. Thông tin xử lý từ SOC:</b><br>
-        <div style="padding-left: 15px; margin-top: 4px; border-left: 3px solid #f26f21;">{{socAction}}</div><br>
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 4px; border-left: 3px solid #f26f21;">
+            <tr><td style="padding-left: 15px;">{{socAction}}</td></tr>
+        </table><br>
         
         <b>4. Đề xuất/Đề nghị xử lý:</b><br>
-        <div style="padding-left: 15px; margin-top: 4px; border-left: 3px solid #f26f21;">{{proposal}}</div>
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 4px; border-left: 3px solid #f26f21;">
+            <tr><td style="padding-left: 15px;">{{proposal}}</td></tr>
+        </table>
     `
 };
