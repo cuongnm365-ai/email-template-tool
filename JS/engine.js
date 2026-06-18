@@ -1,6 +1,6 @@
 /* =========================================================
    BỘ NÃO XỬ LÝ (ENGINE) - SOC COMMAND CENTER
-   Bản cập nhật: Sửa lỗi Crash UI, Tương thích 100% Template, Tối ưu hóa Copy
+   Bản cập nhật: Sửa lỗi crash getFieldHtml, Chuẩn hóa ngôn từ phục vụ
    ========================================================= */
 
 const SYSTEM_ASSETS = {
@@ -48,9 +48,14 @@ function getFieldHtml(field) {
 
     if (field.type === "textarea") {
         return `<textarea id="field_${field.id}" rows="4" class="soc-input template-input w-full" ${formatAttr} placeholder="${field.placeholder || ''}"></textarea>${extraHtml}`;
-    } if (!template) {
-        formContainer.innerHTML = '<p class="text-center text-slate-400 text-sm italic py-10 font-medium">Vui lòng chọn một mẫu để hệ thống phục vụ tự động lắp ráp Form...</p>';
-        field.options.forEach(opt => html += `<option value="${opt.value}">${opt.text}</option>`);
+    } else if (field.type === "select") {
+        let html = `<select id="field_${field.id}" class="soc-input template-input w-full">`;
+        // Kiểm tra an toàn để tránh crash nếu field.options bị thiếu
+        if (field.options && Array.isArray(field.options)) {
+            field.options.forEach(opt => {
+                html += `<option value="${opt.value}">${opt.text}</option>`;
+            });
+        }
         return html + `</select>${extraHtml}`;
     } else if (field.type === "date") {
         return `<input type="date" id="field_${field.id}" class="soc-input template-input w-full">${extraHtml}`;
@@ -66,7 +71,7 @@ function renderForm(templateId) {
     const template = window.SOC_TEMPLATES[templateId];
     
     if (!template) {
-        formContainer.innerHTML = '<p class="text-center text-slate-400 text-sm italic py-10 font-medium">Vui lòng chọn một mẫu để hệ thống tự động lắp ráp Form...</p>';
+        formContainer.innerHTML = '<p class="text-center text-slate-400 text-sm italic py-10 font-medium">Vui lòng chọn một mẫu để hệ thống phục vụ tự động lắp ráp Form...</p>';
         const emailHeaders = document.getElementById("emailHeaders");
         if (emailHeaders) emailHeaders.classList.add("hidden");
         return;
@@ -266,10 +271,6 @@ function displayEmailHeaders(template, data) {
         ccDisplay.classList.add("hidden");
         bccDisplay.classList.add("hidden");
         headersDiv.classList.add("hidden");
-
-        // Không hiển thị email nội bộ khi đăng nhập Demo
-        const isDemo = typeof authManager !== "undefined" && authManager.user && authManager.user.provider === "demo";
-        if (isDemo) return;
 
         // An toàn gọi regionManager gốc (Không dùng window.regionManager)
         if (typeof regionManager === "undefined") {
