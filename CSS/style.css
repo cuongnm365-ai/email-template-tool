@@ -98,9 +98,23 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     color: #475569; 
     font-family: inherit; /* Sử dụng font web hiện đại */
 }
-/* DÁN VÀO CUỐI FILE style.css */
+/* 1. Cho phép bôi đen/copy tiêu đề và các thành phần khác */
 body {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* 2. Chặn bôi đen/copy nội dung email */
+#emailContent, #emailSignature {
     -webkit-user-select: none; /* Safari */
-    -ms-user-select: none; /* IE 10 and IE 11 */
-    user-select: none; /* Standard syntax */
+    -ms-user-select: none;    /* IE 10+ */
+    user-select: none;        /* Standard */
+    cursor: default;          /* Đổi con trỏ chuột để người dùng biết không thể chọn */
+}
+
+/* 3. Cho phép tiêu đề vẫn bôi đen bình thường */
+#emailSubject {
+    -webkit-user-select: text;
+    user-select: text;
+    cursor: text;
 }
