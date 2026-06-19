@@ -98,3 +98,9 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     color: #475569; 
     font-family: inherit; /* Sử dụng font web hiện đại */
 }
+/* DÁN VÀO CUỐI FILE style.css */
+body {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
+}
