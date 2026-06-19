@@ -35,9 +35,7 @@ window.SOC_TEMPLATES["t_gui_hoa_don"] = {
         Em là <b>{{staffName}}</b> – Nhân viên CSKH FPT Telecom.<br><br>
         Bên em đã ghi nhận yêu cầu về cước phí của {{pronounLc}} đối với Số hợp đồng <b>{{soHopDong}}</b> tại địa chỉ {{diaChi}}. Em đã kiểm tra và xin gửi lại {{pronounLc}} hoá đơn điện tử qua file đính kèm.<br><br>
         {{honorific}} <b>{{customerName}}</b> cũng có thể tra cứu hoá đơn điện tử qua ứng dụng <b>Hi FPT</b> hoặc website: <a href="https://fpt.vn/vi" target="_blank" style="color: #0056b3;">https://fpt.vn/vi</a> bằng cách đăng nhập số điện thoại đăng ký <b>{{soDienThoai}}</b>.<br><br>
-        
         {INFO_BOX}<br><br>
-        
         Thanh toán nhanh, an toàn & dễ dàng kiểm tra tình trạng thanh toán ngay tại ứng dụng <b>Hi FPT</b> (quét hoặc chạm mã QR bên cạnh, đăng nhập SĐT {{soDienThoai}}).<br><br>
         Trong quá trình sử dụng, khi cần báo hỏng hoặc yêu cầu phục vụ khác, {{pronounLc}} có thể quét mã QR để gửi yêu cầu trực tiếp trên Ứng dụng Hi FPT tại mục "Phục vụ" hoặc "Báo hỏng nhanh". Bên em sẽ xử lý nhanh chóng mà không cần gọi hotline.<br><br>
         Chân thành cảm ơn {{honorific}} <b>{{customerName}}</b> đã tin tưởng và sử dụng dịch vụ của FPT Telecom.<br><br>
