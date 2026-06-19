@@ -1,7 +1,7 @@
 window.SOC_TEMPLATES = window.SOC_TEMPLATES || {};
 
 window.SOC_TEMPLATES["t_gui_hoa_don"] = {
-    name: "Mẫu: Cung cấp hóa đơn điện tử cước phí",
+    name: "Mẫu Mới 12: Cung cấp hóa đơn điện tử",
     subject: "[Xử Lý] Cung cấp hóa đơn điện tử cước phí dịch vụ FPT Telecom",
     
     fields: [
