@@ -41,4 +41,5 @@ window.SOC_TEMPLATES["t_gui_hoa_don"] = {
         Thanh toán nhanh, an toàn & dễ dàng kiểm tra tình trạng thanh toán ngay tại ứng dụng <b>Hi FPT</b> (quét hoặc chạm mã QR bên cạnh, đăng nhập SĐT {{soDienThoai}}).<br><br>
         Trong quá trình sử dụng, khi cần báo hỏng hoặc yêu cầu phục vụ khác, {{pronounLc}} có thể quét mã QR để gửi yêu cầu trực tiếp trên Ứng dụng Hi FPT tại mục "Phục vụ" hoặc "Báo hỏng nhanh". Bên em sẽ xử lý nhanh chóng mà không cần gọi hotline.<br><br>
         Chân thành cảm ơn {{honorific}} <b>{{customerName}}</b> đã tin tưởng và sử dụng dịch vụ của FPT Telecom.<br><br>
+        `
       };
