@@ -1,6 +1,6 @@
 /* =========================================================
    BỘ NÃO XỬ LÝ (ENGINE) - SOC COMMAND CENTER
-   Bản cập nhật: Sửa lỗi crash getFieldHtml, Chuẩn hóa ngôn từ phục vụ
+   Bản cập nhật: Bảo mật DOMPurify, Tracking Google Analytics
    ========================================================= */
 
 const SYSTEM_ASSETS = {
@@ -12,6 +12,22 @@ const SYSTEM_ASSETS = {
 
 window.SOC_TEMPLATES = window.SOC_TEMPLATES || {};
 let currentTemplateId = "";
+
+// --- HÀM TRACKING GOOGLE ANALYTICS ---
+function trackTemplateUsage(method) {
+    if (!currentTemplateId) return;
+    const templateName = window.SOC_TEMPLATES[currentTemplateId]?.name || currentTemplateId;
+    
+    // Đẩy sự kiện về GTM/GA4
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+        'event': 'use_template',
+        'template_id': currentTemplateId,
+        'template_name': templateName,
+        'copy_method': method // Trả về 'button_click' hoặc 'manual_select'
+    });
+    console.log(`[Tracking] Đã ghi nhận sử dụng mẫu: ${templateName} (${method})`);
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     // 1. Tải danh sách mẫu Email
@@ -27,16 +43,28 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 2. Gắn sự kiện các nút công cụ
     const btnReset = document.getElementById("btnReset");
     if (btnReset) btnReset.addEventListener("click", () => renderForm(currentTemplateId));
     
     const btnCopy = document.getElementById("btnCopy");
-    if (btnCopy) btnCopy.addEventListener("click", copyEmailContent);
+    if (btnCopy) btnCopy.addEventListener("click", () => {
+        copyEmailContent();
+        trackTemplateUsage('button_click'); // Bắn tracking khi bấm nút
+    });
 
-    // 3. Khởi tạo chức năng nhấp đúp copy danh sách CC/BCC
     setupDoubleClickCopy("ccDisplay", "ccValue", "CC");
     setupDoubleClickCopy("bccDisplay", "bccValue", "BCC");
+
+    // 2. Lắng nghe sự kiện bôi đen copy (Ctrl+C) thủ công
+    document.addEventListener("copy", (e) => {
+        const selection = document.getSelection();
+        const emailContentNode = document.getElementById("emailContent");
+        
+        // Nếu người dùng đang bôi đen text nằm TRONG khu vực nội dung email
+        if (emailContentNode && selection.anchorNode && emailContentNode.contains(selection.anchorNode)) {
+            trackTemplateUsage('manual_select'); // Bắn tracking khi copy thủ công
+        }
+    });
 });
 
 function getFieldHtml(field) {
@@ -50,12 +78,7 @@ function getFieldHtml(field) {
         return `<textarea id="field_${field.id}" rows="4" class="soc-input template-input w-full" ${formatAttr} placeholder="${field.placeholder || ''}"></textarea>${extraHtml}`;
     } else if (field.type === "select") {
         let html = `<select id="field_${field.id}" class="soc-input template-input w-full">`;
-        // Kiểm tra an toàn để tránh crash nếu field.options bị thiếu
-        if (field.options && Array.isArray(field.options)) {
-            field.options.forEach(opt => {
-                html += `<option value="${opt.value}">${opt.text}</option>`;
-            });
-        }
+        field.options.forEach(opt => html += `<option value="${opt.value}">${opt.text}</option>`);
         return html + `</select>${extraHtml}`;
     } else if (field.type === "date") {
         return `<input type="date" id="field_${field.id}" class="soc-input template-input w-full">${extraHtml}`;
@@ -71,13 +94,12 @@ function renderForm(templateId) {
     const template = window.SOC_TEMPLATES[templateId];
     
     if (!template) {
-        formContainer.innerHTML = '<p class="text-center text-slate-400 text-sm italic py-10 font-medium">Vui lòng chọn một mẫu để hệ thống phục vụ tự động lắp ráp Form...</p>';
+        formContainer.innerHTML = '<p class="text-center text-slate-400 text-sm italic py-10 font-medium">Vui lòng chọn một mẫu để hệ thống tự động lắp ráp Form...</p>';
         const emailHeaders = document.getElementById("emailHeaders");
         if (emailHeaders) emailHeaders.classList.add("hidden");
         return;
     }
 
-    // Lấy tên Agent (An toàn chống crash)
     let savedAgentName = localStorage.getItem("soc_agent_name") || "";
     if (!savedAgentName && typeof authManager !== "undefined" && authManager.user) {
         savedAgentName = authManager.user.name;
@@ -145,7 +167,6 @@ function renderForm(templateId) {
 
     formContainer.innerHTML = html;
     
-    // Ép kiểu chữ tự động
     document.querySelectorAll('.template-input').forEach(input => {
         input.addEventListener('input', (e) => {
             if (e.target.id === "field_staffName") localStorage.setItem("soc_agent_name", e.target.value);
@@ -170,17 +191,15 @@ function renderForm(templateId) {
         }
     });
     
-    renderEmail(); // Gọi render nội dung sau khi load xong Form
+    renderEmail(); 
 }
 
 function renderEmail() {
-    // Chốt chặn lỗi: Toàn bộ quá trình tạo HTML được gói trong try...catch để không làm sập giao diện
     try {
         if (!currentTemplateId) return;
         const template = window.SOC_TEMPLATES[currentTemplateId];
         let data = {};
         
-        // Thu thập dữ liệu từ input
         document.querySelectorAll('.template-input').forEach(input => {
             let key = input.id.replace('field_', '');
             if (input.type === 'checkbox') {
@@ -194,7 +213,6 @@ function renderEmail() {
             }
         });
         
-        // Tính toán đại từ nhân xưng
         data.honorific = data.gender || "Anh/Chị";
         data.pronoun = (data.gender === 'Doanh Nghiệp') ? 'Quý công ty' : (data.gender || "Anh/Chị");
         data.pronounLc = data.pronoun.toLowerCase();
@@ -202,10 +220,8 @@ function renderEmail() {
 
         if (typeof template.computedVars === 'function') Object.assign(data, template.computedVars(data));
         
-        // Hàm replace an toàn
         const replaceVars = (text) => text ? text.replace(/\{\{(\w+)\}\}/g, (match, key) => data[key] !== undefined ? data[key] : match) : "";
 
-        // Xử lý Box thông báo / QR
         let infoBoxHtml = "";
         if (template.boxContent) {
             let qrSection = "";
@@ -230,16 +246,20 @@ function renderEmail() {
             </table>`;
         }
 
-        let finalBody = replaceVars(template.body).replace('{INFO_BOX}', infoBoxHtml);
+        let finalBodyRaw = replaceVars(template.body).replace('{INFO_BOX}', infoBoxHtml);
+        
+        // TÍCH HỢP BẢO MẬT XSS (DOMPURIFY)
+        let finalBody = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(finalBodyRaw) : finalBodyRaw;
+
         let agentName = (data.staffName && data.staffName !== "[staffName]") ? data.staffName : "[Tên Agent]";
-        let finalSig = template.customSignature ? replaceVars(template.customSignature) : `Trân trọng,<br>Em <b>${agentName}</b> – CSKH FPT Telecom.`;
+        let finalSigRaw = template.customSignature ? replaceVars(template.customSignature) : `Trân trọng,<br>Em <b>${agentName}</b> – CSKH FPT Telecom.`;
+        
+        let finalSig = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(finalSigRaw) : finalSigRaw;
 
         if (template.hideSignature) finalSig = "";
 
-        // Gọi hàm header tách biệt để nếu nó lỗi, Email vẫn được render
         displayEmailHeaders(template, data);
 
-        // Đổ dữ liệu ra DOM thực tế
         const emailSubject = document.getElementById("emailSubject");
         if (emailSubject) emailSubject.innerText = replaceVars(template.subject);
         
@@ -251,10 +271,6 @@ function renderEmail() {
 
     } catch (error) {
         console.error("Lỗi Render Email:", error);
-        const emailContent = document.getElementById("emailContent");
-        if (emailContent) {
-            emailContent.innerHTML = `<div class="p-4 bg-red-50 border border-red-200 text-red-600 rounded">⚠️ Đã xảy ra lỗi kỹ thuật khi tải mẫu: ${error.message}</div>`;
-        }
     }
 }
 
@@ -272,11 +288,7 @@ function displayEmailHeaders(template, data) {
         bccDisplay.classList.add("hidden");
         headersDiv.classList.add("hidden");
 
-        // An toàn gọi regionManager gốc (Không dùng window.regionManager)
-        if (typeof regionManager === "undefined") {
-            console.warn("Chưa tải xong cấu hình vùng miền.");
-            return;
-        }
+        if (typeof regionManager === "undefined") return;
         
         if (template.name && template.name.includes("nội bộ")) {
             const contractId = document.getElementById("field_contractId")?.value || "";
@@ -296,9 +308,7 @@ function displayEmailHeaders(template, data) {
                 headersDiv.classList.remove("hidden");
             }
         }
-    } catch (e) {
-        console.error("Lỗi hiển thị CC/BCC Header:", e);
-    }
+    } catch (e) {}
 }
 
 function setupDoubleClickCopy(containerId, valueId, typeName) {
