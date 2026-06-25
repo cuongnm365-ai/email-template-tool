@@ -5,28 +5,37 @@ window.SOC_TEMPLATES["t_gui_hoa_don"] = {
     subject: "[Xử Lý] Cung cấp hóa đơn điện tử cước phí dịch vụ FPT Telecom",
     
     fields: [
-        { id: "soHopDong", label: "Số hợp đồng", type: "text", note: "Ví dụ: HNABM0705" },
-        { id: "diaChi", label: "Địa chỉ hợp đồng", type: "text", note: "Ghi rõ số nhà, đường, phường/xã..." },
-        { id: "soDienThoai", label: "Số điện thoại đăng ký", type: "text", note: "SĐT dùng để đăng nhập Hi FPT" },
-        { id: "soHoaDon", label: "Số hóa đơn/Mã dịch vụ", type: "text", note: "Ví dụ: U26HN00891068" },
-        { id: "tuNgay", label: "Từ ngày (Bắt đầu kỳ cước)", type: "text", note: "Bỏ trống nếu không cần hiển thị. (VD: 01/06/2026)" },
-        { id: "denNgay", label: "Đến ngày (Kết thúc kỳ cước)", type: "text", note: "Bỏ trống nếu không cần hiển thị. (VD: 30/06/2027)" }
+        { id: "soHopDong", label: "Số hợp đồng", type: "text", placeholder: "Ví dụ: HNABM0705" },
+        { id: "diaChi", label: "Địa chỉ hợp đồng", type: "text", placeholder: "Ghi rõ số nhà, đường, phường/xã..." },
+        { id: "soDienThoai", label: "Số điện thoại đăng ký", type: "text", placeholder: "SĐT dùng để đăng nhập Hi FPT" },
+        { id: "soHoaDon", label: "Số hóa đơn/Mã dịch vụ", type: "text", placeholder: "Ví dụ: U26HN00891068" },
+        { id: "tuNgay", label: "Từ ngày (Bắt đầu kỳ cước)", type: "text", placeholder: "Bỏ trống nếu không cần hiển thị. (VD: 01/06/2026)" },
+        { id: "denNgay", label: "Đến ngày (Kết thúc kỳ cước)", type: "text", placeholder: "Bỏ trống nếu không cần hiển thị. (VD: 30/06/2027)" }
     ],
+
+    // FIX: Trước đây dùng <script> để ẩn dòng "Kỳ cước" khi bỏ trống, nhưng do toàn bộ
+    // nội dung email đều được lọc qua DOMPurify (chống XSS) trước khi hiển thị, nên
+    // thẻ <script> luôn bị loại bỏ -> dòng Kỳ cước trống không bao giờ được ẩn.
+    // Cách đúng: tính toán sẵn HTML cần hiển thị tại đây (giống cách t_thanh_toan
+    // đang làm với cycleListHTML), rồi chèn vào qua biến {{kyCuocHTML}}.
+    computedVars: function(data) {
+        let hasTuNgay = data.tuNgay && data.tuNgay !== '[tuNgay]' && data.tuNgay.trim() !== '';
+        let hasDenNgay = data.denNgay && data.denNgay !== '[denNgay]' && data.denNgay.trim() !== '';
+        let kyCuocHTML = "";
+        if (hasTuNgay || hasDenNgay) {
+            kyCuocHTML = `<li style="margin-bottom: 3px;"><b>Kỳ cước:</b> Từ ngày ${hasTuNgay ? data.tuNgay : '...'} đến ngày ${hasDenNgay ? data.denNgay : '...'}</li>`;
+        }
+        return { kyCuocHTML: kyCuocHTML };
+    },
     
     qrType: "thanh_toan", 
     
     boxContent: `
         <ul style="margin: 0; padding-left: 16px; line-height: 1.5;">
             <li style="margin-bottom: 3px;"><b>Số hóa đơn:</b> {{soHoaDon}}</li>
-            <li id="ky-cuoc-row" style="margin-bottom: 3px;"><b>Kỳ cước:</b> Từ ngày {{tuNgay}} đến ngày {{denNgay}}</li>
+            {{kyCuocHTML}}
         </ul>
         <p style="margin: 6px 0; font-style: italic;">➔ Hoá đơn điện tử chi tiết vui lòng xem qua file đính kèm.</p>
-        <script>
-            var kyCuocRow = document.getElementById("ky-cuoc-row");
-            if(kyCuocRow && kyCuocRow.innerText.includes("Từ ngày  đến ngày ")) {
-                kyCuocRow.style.display = "none";
-            }
-        </script>
     `,
 
     body: `
