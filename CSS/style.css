@@ -381,21 +381,34 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 #phone_error { font-family: var(--font-body); }
 /* =========================================================
    /* =========================================================
-   FIX LỖI HIỂN THỊ CC / BCC TRONG KHUNG XEM TRƯỚC EMAIL
-   Ép xuống dòng với các chuỗi email dài dính liền nhau
+  /* =========================================================
+   BỔ SUNG HOÀN CHỈNH: FIX KHUNG CC/BCC & TRẠNG THÁI TAB
    ========================================================= */
+
+/* Ép bẻ gãy chuỗi email dính liền không khoảng trắng (vd: HuyVD@fpt.com;QuangNT@fpt.com) */
 #ccDisplay, #bccDisplay {
-    align-items: flex-start !important; /* Đảm bảo chữ bắt đầu từ trên cùng khi rớt nhiều dòng */
+    align-items: flex-start !important;
     height: auto !important;
-    min-height: 30px;
+    min-height: 32px;
 }
 
-#ccValue, #bccValue {
-    display: block;
-    flex: 1; /* Cho phép nội dung chiếm toàn bộ không gian ngang còn lại */
-    word-break: break-all !important; /* Ép bẻ từ để xuống dòng khi gặp chuỗi dài không có khoảng trắng */
+#ccValue, #bccValue,
+textarea[id*="cc"], textarea[id*="bcc"], 
+input[id*="cc"], input[id*="bcc"],
+.cc-bcc-display, #ccEmailDisplay, #bccEmailDisplay,
+#emailCC, #emailBCC {
+    display: block !important;
+    flex: 1 !important;
+    word-break: break-all !important; 
     overflow-wrap: break-word !important;
     white-space: normal !important;
-    line-height: 1.6;
-    padding-bottom: 4px; /* Tránh text bị dính sát lề dưới */
+    line-height: 1.6 !important;
+    padding-bottom: 4px;
+}
+
+/* Đảm bảo class active nhận diện chính xác hiệu ứng bóng cam cam đặc thù mà không bị kẹt style cũ */
+.tab-btn.active {
+    background-color: rgba(249, 115, 22, 0.1) !important;
+    color: rgb(234, 88, 12) !important;
+    box-shadow: 0 0 12px rgba(234, 88, 12, 0.2), inset 0 -2px 0 rgb(234, 88, 12) !important;
 }
