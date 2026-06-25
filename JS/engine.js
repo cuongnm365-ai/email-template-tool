@@ -357,18 +357,17 @@ function copyEmailContent() {
     
     if (!contentEl) return;
     
-    // Clone nội dung để can thiệp phóng to ảnh QR mà không làm ảnh hưởng giao diện gốc
+    // Tạo bản sao HTML độc lập để xử lý kích thước ảnh QR mà không phá hỏng cấu hình hiển thị thực tế trên web
     const cloneContent = document.createElement('div');
     cloneContent.innerHTML = contentEl.innerHTML;
     
-    // Phóng to kích thước của hình ảnh QR (ảnh minh họa Info Box) thêm 1 chút (~25%)
+    // Định vị hình ảnh mã QR ứng dụng Hi FPT và phóng to kích thước thêm 1 chút theo yêu cầu
     const qrImages = cloneContent.querySelectorAll('img[src*="tools.manhcuongit"]');
     qrImages.forEach(img => {
-        // Tăng size ảnh. Nếu đang 120/130 thì cho lên 150-160
         img.style.width = "160px";
         img.style.height = "auto";
         img.style.maxWidth = "100%";
-        // Nếu ảnh nằm trong td, mở rộng cả td
+        // Nếu ảnh được bao bọc trong ô bảng td, dãn rộng chiều ngang td để tránh ép khung ảnh
         if (img.closest('td')) {
             img.closest('td').style.width = "170px";
         }
@@ -377,13 +376,24 @@ function copyEmailContent() {
     const content = cloneContent.innerHTML;
     const sig = sigEl ? sigEl.innerHTML : "";
     
-    // Chuẩn hóa định dạng hiển thị: Font Aptos 12pt, khung bao max-width 800px (chuẩn A4/Letter), tương thích Outlook
+    // Tạo cấu trúc bao bọc chuẩn hóa: Font Aptos, Size 12pt, giới hạn khung 800px tương đương size Letter/A4
     const fullHtml = `
         <div style="font-family: 'Aptos', 'Segoe UI', Arial, sans-serif; font-size: 12pt; color: #2d3748; max-width: 800px; margin: 0 auto; line-height: 1.5;">
             ${content}
             ${sig ? `<br><br>${sig}` : ''}
         </div>
     `;
+    
+    // TỰ ĐỘNG CẬP NHẬT SỐ LIỆU CHO TAB THỐNG KÊ KHI SỐ LƯỢT COPY THÀNH CÔNG
+    if (typeof currentTemplateId !== 'undefined' && currentTemplateId) {
+        try {
+            let stats = JSON.parse(localStorage.getItem('soc_template_stats')) || {};
+            stats[currentTemplateId] = (stats[currentTemplateId] || 0) + 1;
+            localStorage.setItem('soc_template_stats', JSON.stringify(stats));
+        } catch (e) {
+            console.error("Không thể ghi nhận dữ liệu đếm mẫu:", e);
+        }
+    }
     
     const blob = new Blob([fullHtml], { type: 'text/html' });
     const data = [new ClipboardItem({ 'text/html': blob })];
