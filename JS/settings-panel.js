@@ -1,29 +1,31 @@
 /* =========================================================
    PANEL CẤU HÌNH & THỐNG KÊ - SOC COMMAND CENTER
-   Bản nâng cấp hoàn chỉnh: Fix lỗi kẹt style Tab + Tích hợp Tab Thống kê
+   Bản nâng cấp hoàn chỉnh: Khởi tạo tự động & Ép chuyển Tab
    ========================================================= */
 
 function initSettingsPanel() {
     const tabMainBtn = document.getElementById("tabMain");
     const tabSettingsBtn = document.getElementById("tabSettings");
-    const tabStatsBtn = document.getElementById("tabStats"); // Nút Thống kê mới
+    const tabStatsBtn = document.getElementById("tabStats");
     
-    if (tabMainBtn) tabMainBtn.addEventListener("click", () => switchTab("main"));
+    // Gán sự kiện click bằng onclick để đảm bảo ghi đè các hàm cũ bị lỗi
+    if (tabMainBtn) {
+        tabMainBtn.onclick = (e) => { e.preventDefault(); switchTab("main"); };
+    }
     
     if (tabSettingsBtn) {
-        tabSettingsBtn.addEventListener("click", () => {
-            switchTab("settings");
-        });
+        tabSettingsBtn.onclick = (e) => { e.preventDefault(); switchTab("settings"); };
     }
 
     if (tabStatsBtn) {
-        tabStatsBtn.addEventListener("click", () => {
-            switchTab("stats");
-            renderTemplateStatistics(); // Tự động chạy hàm dựng dữ liệu khi mở tab
-        });
+        tabStatsBtn.onclick = (e) => { 
+            e.preventDefault(); 
+            switchTab("stats"); 
+            renderTemplateStatistics(); // Dựng lại dữ liệu mỗi khi mở tab
+        };
     }
     
-    if (typeof authManager !== "undefined" && authManager.isLoggedIn() && regionManager.settings.southEmail !== "") {
+    if (typeof authManager !== "undefined" && authManager.isLoggedIn() && typeof regionManager !== "undefined" && regionManager.settings.southEmail !== "") {
         loadSettingsUI();
     } else {
         window.addEventListener("soc_auth_ready", () => loadSettingsUI());
@@ -31,55 +33,62 @@ function initSettingsPanel() {
 }
 
 function switchTab(tabName) {
-    // Ẩn tất cả nội dung của các tab
-    document.querySelectorAll(".tab-content").forEach(tab => tab.classList.add("hidden"));
+    // 1. Ẩn tất cả các khối nội dung tab
+    document.querySelectorAll(".tab-content").forEach(tab => {
+        tab.classList.add("hidden");
+        tab.style.display = "none"; // Ép ẩn tuyệt đối
+    });
     
-    // Xóa class active ở tất cả các nút (Tuyệt đối không dùng inline style để tránh ghi đè CSS gốc)
+    // 2. Gỡ bỏ trạng thái active ở tất cả các nút
     document.querySelectorAll(".tab-btn").forEach(btn => {
         btn.classList.remove("active");
     });
     
-    // Hiển thị nội dung của tab được chỉ định
+    // 3. Hiện khối nội dung tab được chọn
     const activeTab = document.getElementById(tabName + "Tab");
-    if (activeTab) activeTab.classList.remove("hidden");
+    if (activeTab) {
+        activeTab.classList.remove("hidden");
+        activeTab.style.display = "block"; // Ép hiện tuyệt đối
+    }
     
-    // Kích hoạt trạng thái active cho nút tab tương ứng
+    // 4. Kích hoạt màu cam cho nút tab tương ứng
     const activeBtn = document.getElementById("tab" + tabName.charAt(0).toUpperCase() + tabName.slice(1));
-    if (activeBtn) activeBtn.classList.add("active");
+    if (activeBtn) {
+        activeBtn.classList.add("active");
+    }
 }
 
 function loadSettingsUI() {
     if (typeof regionManager === "undefined") return;
     
-    const southEmailInput = document.getElementById("southEmail");
-    const northEmailInput = document.getElementById("northEmail");
-    const bccEmailInput = document.getElementById("defaultBccEmail");
+    const southEmailInput = document.getElementById("settingsSouthEmail");
+    const northEmailInput = document.getElementById("settingsNorthEmail");
+    const bccEmailInput = document.getElementById("settingsBccEmail");
+    const southPatterns = document.getElementById("settingsSouthPatterns");
+    const northPatterns = document.getElementById("settingsNorthPatterns");
     
     if (southEmailInput) southEmailInput.value = regionManager.settings.southEmail || "";
     if (northEmailInput) northEmailInput.value = regionManager.settings.northEmail || "";
     if (bccEmailInput) bccEmailInput.value = regionManager.settings.defaultBccEmail || "";
+    if (southPatterns) southPatterns.value = regionManager.getSouthPatterns ? regionManager.getSouthPatterns() : "";
+    if (northPatterns) northPatterns.value = regionManager.getNorthPatterns ? regionManager.getNorthPatterns() : "";
     
     disableSettingsEditing();
 }
 
 function disableSettingsEditing() {
-    const inputs = ["southEmail", "northEmail", "defaultBccEmail"];
+    const inputs = ["settingsSouthEmail", "settingsNorthEmail", "settingsBccEmail", "settingsSouthPatterns", "settingsNorthPatterns"];
     inputs.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.disabled = true;
     });
 
-    const saveBtnContainer = document.querySelector("#settingsTab button")?.parentElement;
-    if (saveBtnContainer && saveBtnContainer.classList.contains("justify-end")) {
-        saveBtnContainer.style.display = "none";
-    }
-
     if (!document.getElementById("adminLockNotice")) {
-        const container = document.querySelector("#settingsTab > .bg-white") || document.getElementById("settingsTab");
+        const container = document.querySelector("#settingsTab > .grid") || document.getElementById("settingsTab");
         if (container) {
             const notice = document.createElement("div");
             notice.id = "adminLockNotice";
-            notice.className = "mt-6 p-5 bg-amber-50 border border-amber-200 text-amber-900 text-sm rounded-xl shadow-sm flex flex-col gap-2";
+            notice.className = "mt-6 p-5 bg-amber-50 border border-amber-200 text-amber-900 text-sm rounded-xl shadow-sm flex flex-col gap-2 col-span-full";
             notice.innerHTML = `
                 <div class="flex items-center gap-2 font-bold text-amber-950">
                     <i class="fa-solid fa-user-shield text-base text-amber-600"></i>
@@ -93,13 +102,14 @@ function disableSettingsEditing() {
                     <span>Nếu cần điều chỉnh, vui lòng liên hệ trực tiếp với <strong>Admin Trung tâm</strong>.</span>
                 </div>
             `;
-            container.appendChild(notice);
+            // Chèn xuống cuối
+            if(container.parentNode) container.parentNode.appendChild(notice);
         }
     }
 }
 
 /* =========================================================
-   MÔ-ĐUN PHÁT TRIỂN: THỐNG KÊ TẦN SUẤT SỬ DỤNG MẪU EMAIL
+   MÔ-ĐUN: THỐNG KÊ TẦN SUẤT SỬ DỤNG MẪU EMAIL
    ========================================================= */
 function renderTemplateStatistics() {
     const container = document.getElementById("statsTabContent");
@@ -116,12 +126,10 @@ function renderTemplateStatistics() {
     let totalUsage = 0;
     let rowsHtml = "";
     
-    // Tính tổng lượt sử dụng tổng thể
     Object.keys(stats).forEach(id => {
         totalUsage += (stats[id] || 0);
     });
     
-    // Định dạng và sắp xếp danh sách mẫu theo số lượt dùng giảm dần
     const sortedTemplates = Object.keys(templates).map(id => {
         return {
             id: id,
@@ -135,7 +143,6 @@ function renderTemplateStatistics() {
         return;
     }
     
-    // Sinh các dòng dữ liệu cho bảng xếp hạng
     sortedTemplates.forEach((item, index) => {
         const percentage = totalUsage > 0 ? ((item.count / totalUsage) * 100).toFixed(1) : 0;
         
@@ -159,7 +166,6 @@ function renderTemplateStatistics() {
         `;
     });
     
-    // Kết xuất cấu trúc giao diện Dashboard hoàn chỉnh
     container.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
             <div class="bg-gradient-to-br from-slate-800 to-slate-950 p-5 rounded-2xl text-white shadow-sm border border-slate-700">
@@ -214,3 +220,8 @@ function clearTemplateStatistics() {
         if (typeof showToast === 'function') showToast("Đã làm sạch bộ đếm thống kê!");
     }
 }
+
+// Bắt buộc hệ thống tự động chạy hàm khởi tạo ngay sau khi nạp xong giao diện
+document.addEventListener("DOMContentLoaded", () => {
+    initSettingsPanel();
+});
