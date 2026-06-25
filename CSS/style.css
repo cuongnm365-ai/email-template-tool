@@ -379,3 +379,19 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 
 /* ----- 13. Cảnh báo lỗi định dạng SĐT (giữ id cũ) ----- */
 #phone_error { font-family: var(--font-body); }
+/* =========================================================
+   FIX: GIAO DIỆN Ô NHẬP/HIỂN THỊ EMAIL CC VÀ BCC 
+   Tự động xuống dòng và co dãn chiều cao
+   ========================================================= */
+textarea[id*="cc"], textarea[id*="bcc"], 
+input[id*="cc"], input[id*="bcc"],
+.cc-bcc-display, #ccEmailDisplay, #bccEmailDisplay,
+#emailCC, #emailBCC {
+    word-wrap: break-word !important;
+    white-space: pre-wrap !important;
+    overflow-wrap: break-word !important;
+    height: auto !important;
+    min-height: 42px; /* Đảm bảo chiều cao tối thiểu */
+    resize: vertical; /* Cho phép kéo dãn thêm nếu cần */
+    line-height: 1.5;
+}
