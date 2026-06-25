@@ -1,120 +1,381 @@
 /* =========================================================
-   CSS TÙY CHỈNH SOC COMMAND CENTER - CLOUD PASTEL AI THEME (SÁNG)
-   Phong cách: Sáng dịu nhẹ, Glassmorphism, Chống lóa
+   SOC COMMAND CENTER — DESIGN SYSTEM v2
+   Phong cách: "Trạm điều hành" — gọn, rõ, đỡ mỏi mắt khi dùng nhiều giờ/ca.
+   Giữ nguyên mọi ID/class mà JS đang dùng (xem JS/engine.js, google-auth.js,
+   settings-panel.js) — chỉ thay đổi phần nhìn, không đổi hành vi.
    ========================================================= */
 
-/* ----- 1. Tùy chỉnh thanh cuộn ----- */
-::-webkit-scrollbar { 
-    width: 8px; 
-}
-::-webkit-scrollbar-track { 
-    background: transparent; 
-}
-::-webkit-scrollbar-thumb { 
-    background: #cbd5e1; 
-    border-radius: 8px; 
-    border: 2px solid #f8fafc; /* Viền để tạo độ thon */
-}
-::-webkit-scrollbar-thumb:hover { 
-    background: #a78bfa; /* Đổi sang tím nhạt khi hover */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+/* ----- 0. TOKEN HỆ THỐNG (Sáng = mặc định, Tối = data-theme="dark") ----- */
+:root {
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', 'Segoe UI', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+
+    --bg: #F1F4F9;
+    --bg-soft: #E7EBF2;
+    --surface: #FFFFFF;
+    --surface-2: #F7F9FC;
+    --border: #E1E6EF;
+    --border-strong: #C9D2E0;
+
+    --text: #1B2433;
+    --text-muted: #69748A;
+    --text-faint: #9AA4B6;
+
+    --accent: #F26F21;
+    --accent-strong: #D9590F;
+    --accent-soft: #FDEAD9;
+    --accent-soft-text: #9A4413;
+
+    --ink: #16213E;
+    --ink-soft: #EEF1FA;
+    --ink-strong: #0D1730;
+
+    --success: #168A5E;
+    --success-soft: #E3F6EE;
+    --danger: #D8453F;
+    --danger-soft: #FCEAEA;
+
+    --shadow-sm: 0 1px 2px rgba(20, 30, 55, 0.04), 0 1px 1px rgba(20, 30, 55, 0.03);
+    --shadow-md: 0 8px 24px rgba(20, 30, 55, 0.07);
+    --shadow-lg: 0 16px 40px rgba(20, 30, 55, 0.10);
+
+    --radius: 14px;
+    --radius-sm: 9px;
 }
 
-/* ----- 2. Tùy chỉnh các ô nhập liệu (Sáng tinh khiết, Không chói) ----- */
-.soc-input { 
-    width: 100%; 
-    padding: 10px 14px; 
-    background-color: rgba(255, 255, 255, 0.8); /* Nền trắng hơi trong suốt */
-    border: 1px solid #e2e8f0; 
-    border-radius: 10px; /* Bo góc tròn hơn một chút tạo cảm giác thân thiện */
-    color: #334155; 
-    font-size: 13.5px; 
+html[data-theme="dark"] {
+    --bg: #0F141C;
+    --bg-soft: #151B25;
+    --surface: #1A212C;
+    --surface-2: #20283400;
+    --surface-2: #1E2531;
+    --border: #2A323F;
+    --border-strong: #3A4456;
+
+    --text: #E8EBF2;
+    --text-muted: #98A2B6;
+    --text-faint: #687087;
+
+    --accent: #F26F21;
+    --accent-strong: #FF8A47;
+    --accent-soft: #3A2415;
+    --accent-soft-text: #FFB582;
+
+    --ink: #B9C6E8;
+    --ink-soft: #1B2236;
+    --ink-strong: #DCE4F7;
+
+    --success: #38D399;
+    --success-soft: #11321F;
+    --danger: #F47C76;
+    --danger-soft: #341714;
+
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+    --shadow-md: 0 8px 24px rgba(0,0,0,0.45);
+    --shadow-lg: 0 18px 44px rgba(0,0,0,0.55);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--bg);
+    color: var(--text);
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+h1, h2, h3, .font-display {
+    font-family: var(--font-display) !important;
+    letter-spacing: -0.01em;
+}
+
+.font-mono { font-family: var(--font-mono); }
+
+/* ----- 1. Thanh cuộn ----- */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ----- 2. Ô nhập liệu ----- */
+.soc-input {
+    width: 100%;
+    padding: 10px 14px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 13.5px;
     font-weight: 500;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-    font-family: inherit;
-    backdrop-filter: blur(4px); 
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.01);
+    font-family: var(--font-body);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: var(--shadow-sm);
+}
+.soc-input:focus-visible,
+.soc-input:focus {
+    border-color: var(--accent);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.soc-input::placeholder { color: var(--text-faint); font-weight: 400; }
+.soc-input:disabled { cursor: not-allowed; opacity: 0.6; }
+
+.soc-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-family: var(--font-mono);
 }
 
-/* Hiệu ứng Glow êm ái khi click vào */
-.soc-input:focus { 
-    border-color: #a78bfa; 
-    outline: none; 
-    background-color: #ffffff;
-    box-shadow: 0 4px 15px rgba(167, 139, 250, 0.15), 0 0 0 3px rgba(167, 139, 250, 0.1); 
-    transform: translateY(-1px); 
-}
+input[type="checkbox"].template-input { accent-color: var(--accent); }
 
-.soc-input::placeholder { 
-    color: #94a3b8; 
-    font-weight: 400;
-}
-
-.soc-label { 
-    display: block; 
-    font-size: 11px; 
-    font-weight: 800; 
-    color: #64748b; 
-    margin-bottom: 6px; 
-    text-transform: uppercase; 
-    letter-spacing: 0.8px; 
-}
-
-/* Biểu tượng cuốn lịch ngày tháng */
 input[type="date"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
-    opacity: 0.4;
-    transition: all 0.3s ease;
-    filter: invert(0.4) sepia(1) hue-rotate(200deg) saturate(200%);
+    opacity: 0.55;
+    transition: opacity 0.2s ease;
 }
-input[type="date"]::-webkit-calendar-picker-indicator:hover { 
-    opacity: 1; 
-    transform: scale(1.1);
+html[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+/* ----- 3. Khung đăng nhập ----- */
+#loginModal { background: rgba(10, 14, 22, 0.55); backdrop-filter: blur(6px); }
+#loginModal > div {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
 }
 
-/* ----- 3. Tùy chỉnh khu vực Nội dung Email (Format nguyên gốc Outlook) ----- */
-#emailSubject { 
-    font-weight: 800; 
-    color: #ea580c; 
-    font-size: 15px; 
+/* ----- 4. Sidebar ----- */
+.soc-sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+}
+.soc-brand-mark {
+    background: var(--ink);
+    color: #fff;
+}
+.tab-btn {
+    color: var(--text-muted);
+    border-left: 3px solid transparent;
+    font-family: var(--font-body);
+    font-weight: 700;
+    transition: all 0.15s ease;
+}
+.tab-btn:hover { color: var(--ink); background: var(--bg-soft); }
+.tab-btn.active {
+    color: var(--accent-strong);
+    background: var(--accent-soft);
+    border-left-color: var(--accent);
+}
+.soc-account-card {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
 }
 
-#emailContent { 
-    font-size: 14.5px; 
-    line-height: 1.4; 
-    color: #1e293b; 
-    font-family: inherit; /* Sử dụng font web hiện đại */
+/* ----- 5. Header + status pill ----- */
+.soc-header { background: var(--surface); border-bottom: 1px solid var(--border); }
+.status-pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.02em;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
 }
-/* Thêm đoạn này để các đoạn văn (paragraphs) không bị cách nhau quá xa */
-#emailContent p {
-    margin-bottom: 8px !important; /* Giảm khoảng cách giữa các đoạn */
+.status-pill .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--text-faint);
+    flex-shrink: 0;
+}
+.status-pill.is-ready { color: var(--success); border-color: var(--success-soft); background: var(--success-soft); }
+.status-pill.is-ready .dot { background: var(--success); box-shadow: 0 0 0 3px var(--success-soft); animation: pulse-dot 2s infinite; }
+
+@keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(22, 138, 94, 0.35); }
+    50% { box-shadow: 0 0 0 4px rgba(22, 138, 94, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .status-pill.is-ready .dot { animation: none; }
 }
 
-#emailSignature { 
-    margin-top: 24px; 
-    padding-top: 18px; 
-    border-top: 1px dashed #cbd5e1; 
-    font-size: 14px; 
-    line-height: 1.5; 
-    color: #475569; 
-    font-family: inherit; /* Sử dụng font web hiện đại */
+.theme-toggle {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
 }
-/* 1. Cho phép bôi đen/copy tiêu đề và các thành phần khác */
-body {
-    -webkit-user-select: text;
-    user-select: text;
+.theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ----- 6. Step card (form theo từng bước) ----- */
+.step-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+.step-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+}
+.step-index {
+    font-family: var(--font-mono);
+    font-size: 11px; font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 6px;
+    padding: 3px 7px;
+    flex-shrink: 0;
+}
+.step-title {
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text);
+}
+.step-body { padding: 16px; }
+
+.workspace-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
 }
 
-/* 2. Chặn bôi đen/copy nội dung email */
+/* ----- 7. Khung xem trước Email (giả lập client email) ----- */
+.mail-frame {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+.mail-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--border);
+}
+.mail-dots { display: flex; gap: 6px; }
+.mail-dots span { width: 9px; height: 9px; border-radius: 50%; display: block; }
+.mail-dots span:nth-child(1) { background: #ED6A5E; }
+.mail-dots span:nth-child(2) { background: #F4BF4F; }
+.mail-dots span:nth-child(3) { background: #61C454; }
+
+.mail-meta { background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.mail-meta-row {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 7px 16px;
+    font-size: 12.5px;
+}
+.mail-meta-row + .mail-meta-row { border-top: 1px dashed var(--border); }
+.mail-meta-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px; font-weight: 700;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    width: 58px; flex-shrink: 0;
+}
+#emailSubject { font-family: var(--font-body); font-weight: 800; color: var(--accent-strong); font-size: 14.5px; }
+
+#emailContent {
+    font-size: 14.5px; line-height: 1.65; color: var(--text);
+    font-family: var(--font-body);
+}
+#emailContent p { margin-bottom: 8px !important; }
+
+#emailSignature {
+    margin-top: 22px; padding-top: 16px;
+    border-top: 1px dashed var(--border);
+    font-size: 13.5px; line-height: 1.55; color: var(--text-muted);
+    font-family: var(--font-body);
+}
+
+/* Chặn bôi đen nội dung email (giữ nguyên hành vi cũ) */
 #emailContent, #emailSignature {
-    -webkit-user-select: none; /* Safari */
-    -ms-user-select: none;    /* IE 10+ */
-    user-select: none;        /* Standard */
-    cursor: default;          /* Đổi con trỏ chuột để người dùng biết không thể chọn */
+    -webkit-user-select: none; -ms-user-select: none; user-select: none;
+    cursor: default;
+}
+#emailSubject { -webkit-user-select: text; user-select: text; cursor: text; }
+body { -webkit-user-select: text; user-select: text; }
+
+/* ----- 8. Nút bấm ----- */
+.btn-accent {
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    transition: background 0.15s ease, transform 0.1s ease;
+    box-shadow: var(--shadow-sm);
+}
+.btn-accent:hover { background: var(--accent-strong); }
+.btn-accent:active { transform: translateY(1px); }
+
+.btn-ghost {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s ease;
+}
+.btn-ghost:hover { color: var(--ink); border-color: var(--border-strong); background: var(--bg-soft); }
+
+.btn-danger-soft {
+    background: var(--danger-soft);
+    color: var(--danger);
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+}
+.btn-danger-soft:hover { filter: brightness(0.97); }
+
+/* ----- 9. Settings tab cards ----- */
+.settings-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+.settings-icon {
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 10px;
 }
 
-/* 3. Cho phép tiêu đề vẫn bôi đen bình thường */
-#emailSubject {
-    -webkit-user-select: text;
-    user-select: text;
-    cursor: text;
+/* ----- 10. Toast ----- */
+#toast {
+    background: var(--surface);
+    border: 1px solid var(--success-soft);
+    color: var(--success);
+    box-shadow: var(--shadow-lg);
 }
+
+/* ----- 11. Badge điều hành góc trên ----- */
+.ops-badge {
+    font-family: var(--font-mono);
+    background: var(--ink-soft);
+    color: var(--ink);
+    border: 1px solid var(--border);
+}
+
+/* ----- 12. Trợ năng: focus-visible rõ ràng cho toàn trang ----- */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* ----- 13. Cảnh báo lỗi định dạng SĐT (giữ id cũ) ----- */
+#phone_error { font-family: var(--font-body); }
