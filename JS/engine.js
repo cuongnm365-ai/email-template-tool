@@ -1,6 +1,7 @@
 /* =========================================================
    BỘ NÃO XỬ LÝ (ENGINE) - SOC COMMAND CENTER
-   Bản cập nhật: Bảo mật DOMPurify, Tracking Google Analytics
+   Bản cập nhật: Bảo mật DOMPurify, Tracking Google Analytics,
+   Format tiền tệ, Fix đồng bộ style cho nội dung sinh động trong INFO_BOX
    ========================================================= */
 
 const SYSTEM_ASSETS = {
@@ -182,6 +183,21 @@ function renderForm(templateId) {
                 let end = e.target.selectionEnd;
                 e.target.value = e.target.value.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
                 e.target.setSelectionRange(start, end);
+            } else if (formatAttr === 'currency') {
+                // FIX: trước đây format "currency" được khai báo trong template
+                // (4_thanh_toan.js, 9_o_payment.js) nhưng engine chưa từng xử lý,
+                // nên số tiền hiển thị thô không có dấu phân cách nghìn.
+                let raw = e.target.value.replace(/[^\d]/g, ''); // chỉ giữ lại số
+                if (raw) {
+                    // Bỏ số 0 thừa ở đầu (ví dụ "0012" -> "12")
+                    raw = String(parseInt(raw, 10));
+                    e.target.value = Number(raw).toLocaleString('vi-VN');
+                } else {
+                    e.target.value = '';
+                }
+                // Vì việc thêm dấu chấm phân cách làm thay đổi độ dài chuỗi,
+                // nên đặt con trỏ về cuối cho đơn giản và đúng trong mọi trường hợp gõ số.
+                e.target.setSelectionRange(e.target.value.length, e.target.value.length);
             }
             renderEmail();
         });
@@ -230,7 +246,15 @@ function renderEmail() {
                 qrSection = `<td width="140" align="center" valign="middle" style="padding: 15px; border-left: 1px dashed #cbd5e0;"><a href="${asset.link}" target="_blank"><img src="${asset.img}" alt="QR Code" style="max-width: 120px;"></a></td>`;
             }
             
-            let formattedBox = template.boxContent
+            // FIX: trước đây thứ tự là chuyển <ul>/<li> -> <div> TRƯỚC, rồi mới thay
+            // {{biến}}. Hệ quả: những dòng <li> được "computedVars" sinh ra động
+            // (ví dụ cycleListHTML ở mẫu Thanh Toán, kyCuocHTML ở mẫu Hóa Đơn) được
+            // chèn vào SAU bước chuyển đổi, nên không được áp style mũi tên cam
+            // đồng bộ như các dòng tĩnh khác -> giao diện email bị lệch.
+            // Nay đổi thứ tự: thay biến trước, rồi mới chuyển <ul>/<li>, để mọi
+            // dòng (tĩnh hay sinh động) đều được style nhất quán.
+            let substitutedBox = replaceVars(template.boxContent);
+            let formattedBox = substitutedBox
                 .replace(/<ul[^>]*>/g, '<div style="margin: 0;">')
                 .replace(/<\/ul>/g, '</div>')
                 .replace(/<li[^>]*>/g, '<div style="margin-bottom: 6px; display: flex; align-items: flex-start;"><span style="margin-right: 8px; color: #f26f21;">➔</span><span>')
@@ -239,7 +263,7 @@ function renderEmail() {
             infoBoxHtml = `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #f26f21; border-radius: 4px; margin: 12px 0;">
                 <tr>
                     <td valign="middle" style="padding: 15px; font-family: sans-serif; font-size: 14.5px; color: #2d3748; line-height: 1.6;">
-                        ${replaceVars(formattedBox)}
+                        ${formattedBox}
                     </td>
                     ${qrSection}
                 </tr>
