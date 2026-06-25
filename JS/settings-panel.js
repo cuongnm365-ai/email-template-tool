@@ -22,17 +22,20 @@ function initSettingsPanel() {
 }
 
 function switchTab(tabName) {
+    // Ẩn tất cả nội dung tab
     document.querySelectorAll(".tab-content").forEach(tab => tab.classList.add("hidden"));
+    
+    // Xóa class active ở tất cả các nút (không dùng inline style để tránh ghi đè css)
     document.querySelectorAll(".tab-btn").forEach(btn => {
         btn.classList.remove("active");
-        btn.style.color = "#334155";
-        btn.style.background = "transparent";
-        btn.style.borderLeft = "none";
+        // Đã xóa các dòng set cứng style.color / background / borderLeft tại đây để nhường lại cho file CSS
     });
     
+    // Hiển thị nội dung tab được chọn
     const activeTab = document.getElementById(tabName + "Tab");
     if (activeTab) activeTab.classList.remove("hidden");
     
+    // Kích hoạt trạng thái active cho nút được chọn
     const activeBtn = document.getElementById("tab" + tabName.charAt(0).toUpperCase() + tabName.slice(1));
     if (activeBtn) activeBtn.classList.add("active");
 }
