@@ -23,11 +23,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="stylesheet" href="CSS/style.css">
-    <!-- Thư viện chống mã độc XSS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 
-   <!-- BẢO MẬT: CHỐNG XEM SOURCE CODE -->
-    <script>
+   <script>
         document.addEventListener('contextmenu', event => event.preventDefault());
         document.onkeydown = function (e) {
             if (e.keyCode == 123) return false; // F12
@@ -42,7 +40,6 @@
 <body class="overflow-x-hidden font-sans">
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WN4FFVFN" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     
-    <!-- LOGIN MODAL -->
     <div id="loginModal" class="fixed inset-0 flex items-center justify-center z-50" style="display: flex;">
         <div class="rounded-3xl shadow-2xl p-8 max-w-md w-full mx-4">
             <div class="text-center mb-8">
@@ -68,10 +65,8 @@
         </div>
     </div>
     
-    <!-- MAIN INTERFACE -->
     <div id="mainInterface" class="hidden flex h-screen overflow-hidden">
         
-        <!-- SIDEBAR -->
         <aside class="soc-sidebar w-72 flex-col hidden md:flex overflow-y-auto">
             <div class="p-6 border-b flex items-center gap-3" style="border-color: var(--border);">
                 <div class="h-10 w-10 flex-shrink-0 flex items-center justify-center rounded-xl" style="background: var(--surface); border: 1px solid var(--border);">
@@ -86,6 +81,9 @@
             <nav class="p-4 space-y-1.5 mt-2 flex-1">
                 <button id="tabMain" class="w-full text-left px-4 py-3 rounded-lg text-sm tab-btn active" data-tab="main">
                     <i class="fa-solid fa-wand-magic-sparkles w-5 mr-2"></i> Tạo Email
+                </button>
+                <button id="tabStats" class="w-full text-left px-4 py-3 rounded-lg text-sm tab-btn" data-tab="stats">
+                    <i class="fa-solid fa-chart-line w-5 mr-2"></i> Thống kê
                 </button>
                 <button id="tabSettings" class="w-full text-left px-4 py-3 rounded-lg text-sm tab-btn" data-tab="settings">
                     <i class="fa-solid fa-sliders w-5 mr-2"></i> Cài đặt
@@ -122,6 +120,7 @@
             </header>
 
             <main class="flex-1 overflow-y-auto p-6 md:p-8 space-y-6" style="background: var(--bg);">
+                
                 <div id="mainTab" class="tab-content active">
                     <div class="border-b pb-4 flex justify-between items-end" style="border-color: var(--border);">
                         <div>
@@ -134,7 +133,6 @@
                     </div>
 
                     <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6">
-                        <!-- CỘT TRÁI: CÁC BƯỚC SOẠN -->
                         <div class="xl:col-span-5 flex flex-col gap-4">
 
                             <div class="step-card">
@@ -160,7 +158,6 @@
                             </div>
                         </div>
 
-                        <!-- CỘT PHẢI: XEM TRƯỚC EMAIL THỰC TẾ -->
                         <div class="xl:col-span-7 flex flex-col gap-4">
                             <div class="workspace-panel p-4 flex justify-between items-center">
                                 <h3 class="font-display text-sm font-bold uppercase tracking-wide" style="color: var(--text);">
@@ -205,6 +202,15 @@
                     </div>
                 </div>
                 
+                <div id="statsTab" class="tab-content hidden">
+                    <div class="mb-8">
+                        <h2 class="font-display text-2xl font-bold" style="color: var(--text);">Thống kê hiệu suất sử dụng</h2>
+                        <p class="text-sm mt-1" style="color: var(--text-muted);">Báo cáo tổng hợp sản lượng sao chép nội dung và tỷ trọng chi tiết của từng mẫu nghiệp vụ điều hành.</p>
+                    </div>
+                    <div id="statsTabContent">
+                        </div>
+                </div>
+
                 <div id="settingsTab" class="tab-content hidden">
                     <div class="mb-8">
                         <h2 class="font-display text-2xl font-bold" style="color: var(--text);">Cài đặt</h2>
@@ -264,7 +270,6 @@
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION -->
     <div id="toast" class="fixed bottom-12 right-6 px-5 py-3.5 rounded-2xl text-xs font-bold tracking-wide hidden flex items-center gap-3">
         <i class="fa-solid fa-circle-check text-lg" style="color: var(--success);"></i> <span id="toast-message">Đã sao chép thành công!</span>
     </div>
