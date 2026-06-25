@@ -357,12 +357,33 @@ function copyEmailContent() {
     
     if (!contentEl) return;
     
-    const content = contentEl.innerHTML;
+    // Clone nội dung để can thiệp phóng to ảnh QR mà không làm ảnh hưởng giao diện gốc
+    const cloneContent = document.createElement('div');
+    cloneContent.innerHTML = contentEl.innerHTML;
+    
+    // Phóng to kích thước của hình ảnh QR (ảnh minh họa Info Box) thêm 1 chút (~25%)
+    const qrImages = cloneContent.querySelectorAll('img[src*="tools.manhcuongit"]');
+    qrImages.forEach(img => {
+        // Tăng size ảnh. Nếu đang 120/130 thì cho lên 150-160
+        img.style.width = "160px";
+        img.style.height = "auto";
+        img.style.maxWidth = "100%";
+        // Nếu ảnh nằm trong td, mở rộng cả td
+        if (img.closest('td')) {
+            img.closest('td').style.width = "170px";
+        }
+    });
+
+    const content = cloneContent.innerHTML;
     const sig = sigEl ? sigEl.innerHTML : "";
     
-    const fullHtml = sig 
-        ? `<div style="font-family: 'Aptos', 'Segoe UI', Arial, sans-serif; font-size: 14.5px; color: #2d3748;">${content}<br>${sig}</div>` 
-        : `<div style="font-family: 'Aptos', 'Segoe UI', Arial, sans-serif; font-size: 14.5px; color: #2d3748;">${content}</div>`;
+    // Chuẩn hóa định dạng hiển thị: Font Aptos 12pt, khung bao max-width 800px (chuẩn A4/Letter), tương thích Outlook
+    const fullHtml = `
+        <div style="font-family: 'Aptos', 'Segoe UI', Arial, sans-serif; font-size: 12pt; color: #2d3748; max-width: 800px; margin: 0 auto; line-height: 1.5;">
+            ${content}
+            ${sig ? `<br><br>${sig}` : ''}
+        </div>
+    `;
     
     const blob = new Blob([fullHtml], { type: 'text/html' });
     const data = [new ClipboardItem({ 'text/html': blob })];
@@ -373,7 +394,6 @@ function copyEmailContent() {
         alert("Trình duyệt chặn Copy ẩn. Vui lòng bôi đen nội dung và nhấn Ctrl+C.");
     });
 }
-
 function showToast(msg) {
     const toast = document.getElementById('toast');
     const toastMessage = document.getElementById('toast-message');
