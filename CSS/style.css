@@ -380,18 +380,22 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 /* ----- 13. Cảnh báo lỗi định dạng SĐT (giữ id cũ) ----- */
 #phone_error { font-family: var(--font-body); }
 /* =========================================================
-   FIX: GIAO DIỆN Ô NHẬP/HIỂN THỊ EMAIL CC VÀ BCC 
-   Tự động xuống dòng và co dãn chiều cao
+   /* =========================================================
+   FIX LỖI HIỂN THỊ CC / BCC TRONG KHUNG XEM TRƯỚC EMAIL
+   Ép xuống dòng với các chuỗi email dài dính liền nhau
    ========================================================= */
-textarea[id*="cc"], textarea[id*="bcc"], 
-input[id*="cc"], input[id*="bcc"],
-.cc-bcc-display, #ccEmailDisplay, #bccEmailDisplay,
-#emailCC, #emailBCC {
-    word-wrap: break-word !important;
-    white-space: pre-wrap !important;
-    overflow-wrap: break-word !important;
+#ccDisplay, #bccDisplay {
+    align-items: flex-start !important; /* Đảm bảo chữ bắt đầu từ trên cùng khi rớt nhiều dòng */
     height: auto !important;
-    min-height: 42px; /* Đảm bảo chiều cao tối thiểu */
-    resize: vertical; /* Cho phép kéo dãn thêm nếu cần */
-    line-height: 1.5;
+    min-height: 30px;
+}
+
+#ccValue, #bccValue {
+    display: block;
+    flex: 1; /* Cho phép nội dung chiếm toàn bộ không gian ngang còn lại */
+    word-break: break-all !important; /* Ép bẻ từ để xuống dòng khi gặp chuỗi dài không có khoảng trắng */
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+    line-height: 1.6;
+    padding-bottom: 4px; /* Tránh text bị dính sát lề dưới */
 }
