@@ -357,17 +357,14 @@ function copyEmailContent() {
     
     if (!contentEl) return;
     
-    // Tạo bản sao HTML độc lập để xử lý kích thước ảnh QR mà không phá hỏng cấu hình hiển thị thực tế trên web
     const cloneContent = document.createElement('div');
     cloneContent.innerHTML = contentEl.innerHTML;
     
-    // Định vị hình ảnh mã QR ứng dụng Hi FPT và phóng to kích thước thêm 1 chút theo yêu cầu
     const qrImages = cloneContent.querySelectorAll('img[src*="tools.manhcuongit"]');
     qrImages.forEach(img => {
         img.style.width = "160px";
         img.style.height = "auto";
         img.style.maxWidth = "100%";
-        // Nếu ảnh được bao bọc trong ô bảng td, dãn rộng chiều ngang td để tránh ép khung ảnh
         if (img.closest('td')) {
             img.closest('td').style.width = "170px";
         }
@@ -376,7 +373,6 @@ function copyEmailContent() {
     const content = cloneContent.innerHTML;
     const sig = sigEl ? sigEl.innerHTML : "";
     
-    // Tạo cấu trúc bao bọc chuẩn hóa: Font Aptos, Size 12pt, giới hạn khung 800px tương đương size Letter/A4
     const fullHtml = `
         <div style="font-family: 'Aptos', 'Segoe UI', Arial, sans-serif; font-size: 12pt; color: #2d3748; max-width: 800px; margin: 0 auto; line-height: 1.5;">
             ${content}
@@ -384,22 +380,49 @@ function copyEmailContent() {
         </div>
     `;
     
-    // TỰ ĐỘNG CẬP NHẬT SỐ LIỆU CHO TAB THỐNG KÊ KHI SỐ LƯỢT COPY THÀNH CÔNG
+    // --- KHỐI BỔ SUNG: GHI NHẬN THỐNG KÊ LOCAL VÀ PUSH LÊN GOOGLE SHEETS API ---
     if (typeof currentTemplateId !== 'undefined' && currentTemplateId) {
+        // 1. Lưu thống kê Local (Giữ nguyên)
         try {
             let stats = JSON.parse(localStorage.getItem('soc_template_stats')) || {};
             stats[currentTemplateId] = (stats[currentTemplateId] || 0) + 1;
             localStorage.setItem('soc_template_stats', JSON.stringify(stats));
-        } catch (e) {
-            console.error("Không thể ghi nhận dữ liệu đếm mẫu:", e);
+        } catch (e) { console.error("Lỗi local storage:", e); }
+
+        // 2. Bắn dữ liệu lên Server Google Sheet
+        const STATS_API_URL = "https://script.google.com/macros/s/AKfycbzIGRhMMZ5KLjjNgkocTxX0CrEM2_zTipwK4LGQfJweaEsRejqOksxG3C8XfopB0gZ4/exec";
+        if (STATS_API_URL && !STATS_API_URL.includes("DÁN_LINK")) {
+            const templateObj = window.SOC_TEMPLATES[currentTemplateId];
+            const tName = templateObj ? templateObj.name : currentTemplateId;
+            // Lấy thông tin user đã đăng nhập, nếu không có để là "Khách"
+            const user = (typeof authManager !== 'undefined' && authManager.user) 
+                ? authManager.user 
+                : {name: "Nhân viên", email: "Khuyết danh"};
+
+            // Bắn request (Dùng text/plain để vượt qua rào cản preflight CORS của Google)
+            fetch(STATS_API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({
+                    userName: user.name,
+                    userEmail: user.email,
+                    templateId: currentTemplateId,
+                    templateName: tName
+                })
+            }).catch(e => console.log("Gửi API ngầm bị lỗi (Mạng):", e));
         }
     }
+    // -------------------------------------------------------------------------
     
     const blob = new Blob([fullHtml], { type: 'text/html' });
     const data = [new ClipboardItem({ 'text/html': blob })];
     
     navigator.clipboard.write(data).then(() => {
         showToast("Đã copy thành công nội dung phục vụ!");
+        // Refresh lại biểu đồ thống kê nếu người dùng đang đứng ở tab Thống kê
+        if (typeof renderTemplateStatistics === 'function' && document.getElementById('statsTab').classList.contains('active')) {
+            renderTemplateStatistics();
+        }
     }).catch(() => {
         alert("Trình duyệt chặn Copy ẩn. Vui lòng bôi đen nội dung và nhấn Ctrl+C.");
     });
