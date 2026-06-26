@@ -1,9 +1,12 @@
 /* =========================================================
-   HỆ THỐNG NHẬN DIỆN VÀ CẤU HÌNH VÙNG MIỀN (EMPTY SECURE LOAD)
+   HỆ THỐNG NHẬN DIỆN VÀ CẤU HÌNH VÙNG MIỀN (API CLOUD LOAD)
    ========================================================= */
 
 class RegionManager {
     constructor() {
+        // DÁN LINK API CẤU HÌNH (SHEET 1) VÀO ĐÂY:
+        this.CONFIG_API_URL = "https://script.google.com/macros/s/AKfycbyPnMb6B_t5Gv_7K0PtbYWpZVNuoPZZC5KkQ4roe1HbkM8LmkrX2TSMr8HRvPzH3I6y4A/exec"; 
+        
         this.settings = {
             southPatterns: [
                 "SG","BD","DA","DN","NT","VT","BP","BT","LD","LA",
@@ -20,6 +23,29 @@ class RegionManager {
             northEmail: "",
             defaultBccEmail: ""
         };
+        
+        // Tự động tải cấu hình từ Google Sheets khi khởi chạy
+        this.loadRemoteConfig();
+    }
+
+    async loadRemoteConfig() {
+        if (!this.CONFIG_API_URL || this.CONFIG_API_URL.includes("DÁN_LINK")) return;
+        
+        try {
+            const response = await fetch(this.CONFIG_API_URL);
+            const data = await response.json();
+            
+            if (data.southEmail) this.settings.southEmail = data.southEmail;
+            if (data.northEmail) this.settings.northEmail = data.northEmail;
+            if (data.defaultBccEmail) this.settings.defaultBccEmail = data.defaultBccEmail;
+            
+            // Cập nhật lên UI ngay khi kéo dữ liệu xong
+            if (typeof loadSettingsUI === "function") {
+                loadSettingsUI();
+            }
+        } catch (error) {
+            console.error("Lỗi khi kéo cấu hình từ Google Sheets:", error);
+        }
     }
 
     clearSettings() {
@@ -44,7 +70,6 @@ class RegionManager {
 
     getSouthPatterns() { return this.settings.southPatterns.join(", "); }
     getNorthPatterns() { return this.settings.northPatterns.join(", "); }
-    getDefaultBcc() { return this.settings.defaultBccEmail; }
 }
 
 const regionManager = new RegionManager();
