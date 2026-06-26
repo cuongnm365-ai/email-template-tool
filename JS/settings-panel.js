@@ -169,14 +169,14 @@ function renderTemplateStatistics() {
     container.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
             <div class="bg-gradient-to-br from-slate-800 to-slate-950 p-5 rounded-2xl text-white shadow-sm border border-slate-700">
-                <div class="text-white/60 text-xs font-bold uppercase tracking-wider">Tổng sản lượng phục vụ</div>
+                <div class="text-white/60 text-xs font-bold uppercase tracking-wider">Tổng số lượt sử dụng</div>
                 <div class="text-4xl font-black mt-1 font-mono text-amber-500">${totalUsage}</div>
                 <div class="text-xs text-white/40 mt-2 flex items-center gap-1">
                     <i class="fa-solid fa-clock-rotate-left"></i> Tổng số lượt click Copy thành công
                 </div>
             </div>
             <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex flex-col justify-center">
-                <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Nghiệp vụ sử dụng cao nhất</div>
+                <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Mẫu email sử dụng cao nhất</div>
                 <div class="text-base font-bold text-slate-800 mt-2 truncate">${sortedTemplates[0].count > 0 ? sortedTemplates[0].name : 'Chưa có dữ liệu'}</div>
                 <div class="text-xs text-slate-500 mt-0.5 font-mono">${sortedTemplates[0].count > 0 ? `Đã dùng: ${sortedTemplates[0].count} lần` : '0 thao tác'}</div>
             </div>
@@ -201,7 +201,7 @@ function renderTemplateStatistics() {
                             <th class="p-4 text-center w-16">STT</th>
                             <th class="p-4">Tên nghiệp vụ mẫu</th>
                             <th class="p-4 text-center w-36">Tổng lượt dùng</th>
-                            <th class="p-4 w-56">Tỷ trọng đóng góp</th>
+                            <th class="p-4 w-56">Tỷ lệ</th>
                         </tr>
                     </thead>
                     <tbody>
