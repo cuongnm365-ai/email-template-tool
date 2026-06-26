@@ -1,7 +1,7 @@
 /* =========================================================
    BỘ NÃO XỬ LÝ (ENGINE) - SOC COMMAND CENTER
    Bản cập nhật: Bảo mật DOMPurify, Tracking Google Analytics,
-   Format tiền tệ, Fix đồng bộ style cho nội dung sinh động trong INFO_BOX
+   Format tiền tệ, Fix đồng bộ style cho nội dung sinh động, Fix hiển thị CC/BCC
    ========================================================= */
 
 const SYSTEM_ASSETS = {
@@ -184,19 +184,13 @@ function renderForm(templateId) {
                 e.target.value = e.target.value.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
                 e.target.setSelectionRange(start, end);
             } else if (formatAttr === 'currency') {
-                // FIX: trước đây format "currency" được khai báo trong template
-                // (4_thanh_toan.js, 9_o_payment.js) nhưng engine chưa từng xử lý,
-                // nên số tiền hiển thị thô không có dấu phân cách nghìn.
-                let raw = e.target.value.replace(/[^\d]/g, ''); // chỉ giữ lại số
+                let raw = e.target.value.replace(/[^\d]/g, '');
                 if (raw) {
-                    // Bỏ số 0 thừa ở đầu (ví dụ "0012" -> "12")
                     raw = String(parseInt(raw, 10));
                     e.target.value = Number(raw).toLocaleString('vi-VN');
                 } else {
                     e.target.value = '';
                 }
-                // Vì việc thêm dấu chấm phân cách làm thay đổi độ dài chuỗi,
-                // nên đặt con trỏ về cuối cho đơn giản và đúng trong mọi trường hợp gõ số.
                 e.target.setSelectionRange(e.target.value.length, e.target.value.length);
             }
             renderEmail();
@@ -246,13 +240,6 @@ function renderEmail() {
                 qrSection = `<td width="140" align="center" valign="middle" style="padding: 15px; border-left: 1px dashed #cbd5e0;"><a href="${asset.link}" target="_blank"><img src="${asset.img}" alt="QR Code" style="max-width: 120px;"></a></td>`;
             }
             
-            // FIX: trước đây thứ tự là chuyển <ul>/<li> -> <div> TRƯỚC, rồi mới thay
-            // {{biến}}. Hệ quả: những dòng <li> được "computedVars" sinh ra động
-            // (ví dụ cycleListHTML ở mẫu Thanh Toán, kyCuocHTML ở mẫu Hóa Đơn) được
-            // chèn vào SAU bước chuyển đổi, nên không được áp style mũi tên cam
-            // đồng bộ như các dòng tĩnh khác -> giao diện email bị lệch.
-            // Nay đổi thứ tự: thay biến trước, rồi mới chuyển <ul>/<li>, để mọi
-            // dòng (tĩnh hay sinh động) đều được style nhất quán.
             let substitutedBox = replaceVars(template.boxContent);
             let formattedBox = substitutedBox
                 .replace(/<ul[^>]*>/g, '<div style="margin: 0;">')
@@ -272,7 +259,6 @@ function renderEmail() {
 
         let finalBodyRaw = replaceVars(template.body).replace('{INFO_BOX}', infoBoxHtml);
         
-        // TÍCH HỢP BẢO MẬT XSS (DOMPURIFY)
         let finalBody = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(finalBodyRaw) : finalBodyRaw;
 
         let agentName = (data.staffName && data.staffName !== "[staffName]") ? data.staffName : "[Tên Agent]";
@@ -298,6 +284,9 @@ function renderEmail() {
     }
 }
 
+/* =========================================================
+   HÀM CẬP NHẬT HEADER EMAIL (ĐÃ FIX LỖI HIỂN THỊ CẢ CC/BCC)
+   ========================================================= */
 function displayEmailHeaders(template, data) {
     try {
         const headersDiv = document.getElementById("emailHeaders");
@@ -308,31 +297,43 @@ function displayEmailHeaders(template, data) {
         
         if (!headersDiv || !ccDisplay || !bccDisplay) return;
         
+        // Reset trạng thái ẩn trước khi xử lý
         ccDisplay.classList.add("hidden");
         bccDisplay.classList.add("hidden");
         headersDiv.classList.add("hidden");
 
         if (typeof regionManager === "undefined") return;
+
+        let hasCC = false;
+        let hasBCC = false;
+
+        // 1. XỬ LÝ CC (Dựa vào Vùng miền từ số hợp đồng)
+        const contractId = document.getElementById("field_contractId")?.value || "";
+        const region = regionManager.detectRegion(contractId);
+        const regionEmail = regionManager.getRegionEmail(region);
         
-        if (template.name && template.name.includes("nội bộ")) {
-            const contractId = document.getElementById("field_contractId")?.value || "";
-            const region = regionManager.detectRegion(contractId);
-            const regionEmail = regionManager.getRegionEmail(region);
-            
-            if (regionEmail) {
-                ccValue.textContent = regionEmail;
-                ccDisplay.classList.remove("hidden");
-                headersDiv.classList.remove("hidden");
-            }
-        } else {
-            const bccEmail = regionManager.getDefaultBcc();
-            if (bccEmail) {
-                bccValue.textContent = bccEmail;
-                bccDisplay.classList.remove("hidden");
-                headersDiv.classList.remove("hidden");
-            }
+        if (regionEmail) {
+            ccValue.textContent = regionEmail;
+            ccDisplay.classList.remove("hidden");
+            hasCC = true;
         }
-    } catch (e) {}
+
+        // 2. XỬ LÝ BCC (Lấy trực tiếp từ cài đặt tải về qua Google Sheets API)
+        const bccEmail = regionManager.settings.defaultBccEmail || "";
+        if (bccEmail) {
+            bccValue.textContent = bccEmail;
+            bccDisplay.classList.remove("hidden");
+            hasBCC = true;
+        }
+
+        // 3. HIỂN THỊ KHỐI CHỨA HEADER (Nếu có ít nhất 1 trong 2 giá trị CC hoặc BCC)
+        if (hasCC || hasBCC) {
+            headersDiv.classList.remove("hidden");
+        }
+
+    } catch (e) {
+        console.error("Lỗi hiển thị Header CC/BCC:", e);
+    }
 }
 
 function setupDoubleClickCopy(containerId, valueId, typeName) {
@@ -382,7 +383,7 @@ function copyEmailContent() {
     
     // --- KHỐI BỔ SUNG: GHI NHẬN THỐNG KÊ LOCAL VÀ PUSH LÊN GOOGLE SHEETS API ---
     if (typeof currentTemplateId !== 'undefined' && currentTemplateId) {
-        // 1. Lưu thống kê Local (Giữ nguyên)
+        // 1. Lưu thống kê Local
         try {
             let stats = JSON.parse(localStorage.getItem('soc_template_stats')) || {};
             stats[currentTemplateId] = (stats[currentTemplateId] || 0) + 1;
@@ -394,12 +395,10 @@ function copyEmailContent() {
         if (STATS_API_URL && !STATS_API_URL.includes("DÁN_LINK")) {
             const templateObj = window.SOC_TEMPLATES[currentTemplateId];
             const tName = templateObj ? templateObj.name : currentTemplateId;
-            // Lấy thông tin user đã đăng nhập, nếu không có để là "Khách"
             const user = (typeof authManager !== 'undefined' && authManager.user) 
                 ? authManager.user 
                 : {name: "Nhân viên", email: "Khuyết danh"};
 
-            // Bắn request (Dùng text/plain để vượt qua rào cản preflight CORS của Google)
             fetch(STATS_API_URL, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -427,6 +426,7 @@ function copyEmailContent() {
         alert("Trình duyệt chặn Copy ẩn. Vui lòng bôi đen nội dung và nhấn Ctrl+C.");
     });
 }
+
 function showToast(msg) {
     const toast = document.getElementById('toast');
     const toastMessage = document.getElementById('toast-message');
