@@ -1,7 +1,13 @@
 /* =========================================================
    PANEL CẤU HÌNH & THỐNG KÊ - SOC COMMAND CENTER
    Bản nâng cấp hoàn chỉnh: Khởi tạo tự động & Ép chuyển Tab
+   Bản cập nhật: Thống kê tổng hợp TẤT CẢ nhân viên (lấy từ Google Sheet qua API GET),
+   thay vì chỉ đếm trên máy/trình duyệt cá nhân (localStorage).
    ========================================================= */
+
+// Link API Google Apps Script dùng để GHI (POST - trong engine.js) và ĐỌC (GET - tại đây)
+// thống kê tổng hợp. Phải trùng với link đang dùng trong JS/engine.js.
+const STATS_API_URL_READ = "https://script.google.com/macros/s/AKfycbzIGRhMMZ5KLjjNgkocTxX0CrEM2_zTipwK4LGQfJweaEsRejqOksxG3C8XfopB0gZ4/exec";
 
 function initSettingsPanel() {
     const tabMainBtn = document.getElementById("tabMain");
@@ -109,40 +115,66 @@ function disableSettingsEditing() {
 }
 
 /* =========================================================
-   MÔ-ĐUN: THỐNG KÊ TẦN SUẤT SỬ DỤNG MẪU EMAIL
+   MÔ-ĐUN: THỐNG KÊ TẦN SUẤT SỬ DỤNG MẪU EMAIL (TỔNG HỢP TẤT CẢ NHÂN VIÊN)
    ========================================================= */
+
+// Bước 1: Hiện trạng thái đang tải, rồi gọi API GET lấy số liệu tổng hợp từ Google Sheet
 function renderTemplateStatistics() {
     const container = document.getElementById("statsTabContent");
     if (!container) return;
-    
-    let stats = {};
-    try {
-        stats = JSON.parse(localStorage.getItem('soc_template_stats')) || {};
-    } catch(e) {
-        console.error("Lỗi đọc dữ liệu thống kê:", e);
+
+    container.innerHTML = `
+        <div class="p-10 text-center text-slate-400">
+            <i class="fa-solid fa-spinner fa-spin text-xl mb-3"></i>
+            <p class="text-sm">Đang tải dữ liệu thống kê tổng hợp từ hệ thống...</p>
+        </div>
+    `;
+
+    if (!STATS_API_URL_READ || STATS_API_URL_READ.includes("DÁN_LINK")) {
+        container.innerHTML = `<div class="p-8 text-center text-slate-400">Chưa cấu hình đường dẫn API thống kê.</div>`;
+        return;
     }
-    
+
+    fetch(STATS_API_URL_READ)
+        .then(res => res.json())
+        .then(result => {
+            if (result.status !== "success") throw new Error(result.message || "Phản hồi không hợp lệ");
+            renderStatsTable(result.stats || {}, result.totalUsage || 0);
+        })
+        .catch(error => {
+            console.error("Lỗi tải thống kê tổng hợp:", error);
+            container.innerHTML = `
+                <div class="p-8 text-center text-red-400 text-sm">
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+                    Không thể tải dữ liệu thống kê tổng hợp. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.
+                </div>
+            `;
+        });
+}
+
+// Bước 2: Dựng bảng xếp hạng dựa trên dữ liệu tổng hợp (remoteStats) lấy được từ Sheet
+function renderStatsTable(remoteStats, totalUsage) {
+    const container = document.getElementById("statsTabContent");
+    if (!container) return;
+
     const templates = window.SOC_TEMPLATES || {};
-    let totalUsage = 0;
     let rowsHtml = "";
-    
-    Object.keys(stats).forEach(id => {
-        totalUsage += (stats[id] || 0);
-    });
-    
+
+    // Gộp danh sách mẫu email hiện có trong tool với số liệu tổng hợp từ Sheet,
+    // để mẫu nào chưa từng được dùng vẫn hiển thị với 0 lượt.
     const sortedTemplates = Object.keys(templates).map(id => {
         return {
             id: id,
             name: templates[id].name ? templates[id].name.replace(/^Mẫu (Mới|Cũ) \d+: /, "") : id,
-            count: stats[id] || 0
+            count: (remoteStats[id] && remoteStats[id].count) || 0
         };
     }).sort((a, b) => b.count - a.count);
-    
+
     if (sortedTemplates.length === 0) {
         container.innerHTML = `<div class="p-8 text-center text-slate-400">Không tìm thấy danh sách mẫu email hoạt động trên hệ thống.</div>`;
         return;
     }
-    
+
     sortedTemplates.forEach((item, index) => {
         const percentage = totalUsage > 0 ? ((item.count / totalUsage) * 100).toFixed(1) : 0;
         
@@ -165,14 +197,14 @@ function renderTemplateStatistics() {
             </tr>
         `;
     });
-    
+
     container.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
             <div class="bg-gradient-to-br from-slate-800 to-slate-950 p-5 rounded-2xl text-white shadow-sm border border-slate-700">
-                <div class="text-white/60 text-xs font-bold uppercase tracking-wider">Tổng số lượt sử dụng</div>
+                <div class="text-white/60 text-xs font-bold uppercase tracking-wider">Tổng số lượt sử dụng (Tất cả nhân viên)</div>
                 <div class="text-4xl font-black mt-1 font-mono text-amber-500">${totalUsage}</div>
                 <div class="text-xs text-white/40 mt-2 flex items-center gap-1">
-                    <i class="fa-solid fa-clock-rotate-left"></i> Tổng số lượt click Copy thành công
+                    <i class="fa-solid fa-clock-rotate-left"></i> Tổng số lượt click Copy thành công của toàn hệ thống
                 </div>
             </div>
             <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex flex-col justify-center">
@@ -182,8 +214,8 @@ function renderTemplateStatistics() {
             </div>
             <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex flex-col justify-between gap-3">
                 <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Dữ liệu hệ thống</div>
-                <button onclick="clearTemplateStatistics()" class="w-full btn-danger-soft py-2 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition border border-red-100">
-                    <i class="fa-solid fa-trash-can"></i> Xóa lịch sử thống kê
+                <button onclick="renderTemplateStatistics()" class="w-full btn-danger-soft py-2 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition border border-red-100">
+                    <i class="fa-solid fa-arrows-rotate"></i> Làm mới dữ liệu
                 </button>
             </div>
         </div>
@@ -191,7 +223,7 @@ function renderTemplateStatistics() {
         <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
             <div class="p-4 border-b border-slate-100 bg-slate-50/50">
                 <h3 class="font-bold text-slate-700 text-xs uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-list-ol text-amber-500"></i> Bảng xếp hạng tần suất sử dụng mẫu email
+                    <i class="fa-solid fa-list-ol text-amber-500"></i> Bảng xếp hạng tần suất sử dụng mẫu email (Toàn hệ thống)
                 </h3>
             </div>
             <div class="overflow-x-auto">
@@ -211,14 +243,6 @@ function renderTemplateStatistics() {
             </div>
         </div>
     `;
-}
-
-function clearTemplateStatistics() {
-    if (confirm("Hệ thống sẽ xóa sạch toàn bộ số lượt đếm tích lũy của các mẫu email trên thiết bị này. Bạn vẫn muốn tiếp tục?")) {
-        localStorage.removeItem('soc_template_stats');
-        renderTemplateStatistics();
-        if (typeof showToast === 'function') showToast("Đã làm sạch bộ đếm thống kê!");
-    }
 }
 
 // Bắt buộc hệ thống tự động chạy hàm khởi tạo ngay sau khi nạp xong giao diện
