@@ -319,7 +319,8 @@ function displayEmailHeaders(template, data) {
         }
 
         // 2. XỬ LÝ BCC (Lấy trực tiếp từ cài đặt tải về qua Google Sheets API)
-        const bccEmail = regionManager.settings.defaultBccEmail || "";
+        // Mẫu nào khai báo hideBcc: true thì không hiển thị dòng BCC (VD: Mẫu Gửi nội bộ)
+        const bccEmail = (!template.hideBcc) ? (regionManager.settings.defaultBccEmail || "") : "";
         if (bccEmail) {
             bccValue.textContent = bccEmail;
             bccDisplay.classList.remove("hidden");
