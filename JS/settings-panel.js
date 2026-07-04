@@ -105,7 +105,7 @@ function disableSettingsEditing() {
                 </p>
                 <div class="mt-2 pt-2 border-t border-amber-200/60 text-xs font-semibold text-red-600 flex items-center gap-1.5">
                     <i class="fa-solid fa-circle-exclamation text-sm"></i>
-                    <span>Nếu cần điều chỉnh, vui lòng liên hệ trực tiếp với <strong>Admin</strong>.</span>
+                    <span>Nếu cần điều chỉnh, vui lòng liên hệ với <strong>Admin</strong>.</span>
                 </div>
             `;
             // Chèn xuống cuối
