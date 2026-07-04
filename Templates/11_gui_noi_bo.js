@@ -4,6 +4,7 @@ window.SOC_TEMPLATES["t_gui_noi_bo"] = {
     name: "Mẫu Mới 8: Gửi nội bộ (DVKH/TIN/PNC...)",
     hideCustomerInfo: true, 
     hideSignature: true, 
+    hideBcc: true, // Mẫu này chỉ hiển thị CC theo vùng miền, không hiển thị BCC
     subject: "{{sourcePrefix}}{{sosPrefix}}{{area}} - {{branch}} - {{contractId}} - [Tóm tắt vấn đề]",
     
     fields: [
