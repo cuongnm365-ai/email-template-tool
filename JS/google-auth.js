@@ -1,20 +1,9 @@
 /* =========================================================
-   GOOGLE AUTHENTICATION SYSTEM (BẢO MẬT MÃ HÓA KÉP)
+   GOOGLE AUTHENTICATION SYSTEM
+   Bản cập nhật: Bỏ phụ thuộc vào config.json — cấu hình Email Vùng miền/BCC
+   giờ được region-detector.js tự động tải từ Google Sheet (CONFIG_API_URL)
+   ngay khi mở trang, không cần đợi đăng nhập xong mới tải như trước.
    ========================================================= */
-
-// Hàm giải mã chống Copy (XOR Cipher + Base64 + Reverse)
-function decryptSOCData(encodedStr) {
-    const SECRET_KEY = "SOC_FPT_2026"; // Chìa khóa bí mật để giải mã
-    try {
-        const reversed = encodedStr.split('').reverse().join('');
-        const decodedB64 = decodeURIComponent(escape(atob(reversed)));
-        let result = "";
-        for(let i = 0; i < decodedB64.length; i++) {
-            result += String.fromCharCode(decodedB64.charCodeAt(i) ^ SECRET_KEY.charCodeAt(i % SECRET_KEY.length));
-        }
-        return result;
-    } catch(e) { return ""; }
-}
 
 class GoogleAuthManager {
     constructor() {
@@ -66,7 +55,7 @@ class GoogleAuthManager {
             if (btn) google.accounts.id.renderButton(btn, { theme: "outline", size: "large", width: "100%" });
             
             if (this.isLoggedIn()) {
-                this.loadSecureConfigAndShow();
+                this.showMainInterface();
             } else {
                 google.accounts.id.prompt(); 
             }
@@ -89,31 +78,11 @@ class GoogleAuthManager {
             };
             
             this.saveUser(user);
-            this.loadSecureConfigAndShow();
+            this.showMainInterface();
             
         } catch (error) { 
             alert("Lỗi xác thực Google. Vui lòng thử lại!"); 
         }
-    }
-
-    loadSecureConfigAndShow() {
-        fetch('config.json')
-            .then(res => res.json())
-            .then(data => {
-                if(typeof regionManager !== "undefined") {
-                    // Áp dụng hàm giải mã mạnh thay vì atob thông thường
-                    regionManager.settings.southEmail = decryptSOCData(data.southEmail);
-                    regionManager.settings.northEmail = decryptSOCData(data.northEmail);
-                    regionManager.settings.defaultBccEmail = decryptSOCData(data.defaultBccEmail);
-                }
-                this.showMainInterface();
-            })
-            .catch(err => {
-                console.error("Lỗi nạp file cấu hình:", err);
-                alert("Không thể tải cấu hình bảo mật. Vui lòng kiểm tra lại đường dẫn file config.json.");
-                this.logout();
-                this.showLoginModal();
-            });
     }
 
     showMainInterface() {
