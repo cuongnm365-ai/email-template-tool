@@ -1,75 +1,139 @@
 /* =========================================================
-   HỆ THỐNG NHẬN DIỆN VÀ CẤU HÌNH VÙNG MIỀN (API CLOUD LOAD)
+   GOOGLE AUTHENTICATION SYSTEM
+   Bản cập nhật: Bỏ phụ thuộc vào config.json — cấu hình Email Vùng miền/BCC
+   giờ được region-detector.js tự động tải từ Google Sheet (CONFIG_API_URL)
+   ngay khi mở trang, không cần đợi đăng nhập xong mới tải như trước.
    ========================================================= */
 
-class RegionManager {
+class GoogleAuthManager {
     constructor() {
-        // DÁN LINK API CẤU HÌNH (SHEET 1) VÀO ĐÂY:
-        this.CONFIG_API_URL = "https://script.google.com/macros/s/AKfycbyPnMb6B_t5Gv_7K0PtbYWpZVNuoPZZC5KkQ4roe1HbkM8LmkrX2TSMr8HRvPzH3I6y4A/exec"; 
-        
-        this.settings = {
-            southPatterns: [
-                "SG","BD","DA","DN","NT","VT","BP","BT","LD","LA",
-                "NN","TI","AG","BL","BE","CM","CT","DT","HG","KG",
-                "ST","TG","TV","VL","BI","DL","GL","HU","KT","PY",
-                "QB","QA","QI","QT","DK"
-            ],
-            northPatterns: [
-                "DB","HM","HT","HB","HY","ND","NB","NA","SL","TB",
-                "TH","BG","BN","CB","LS","LC","PT","TQ","TN","VP",
-                "YB","HA","HN","HD","HP","QN"
-            ],
-            southEmail: "",
-            northEmail: "",
-            defaultBccEmail: ""
-        };
-        
-        // Tự động tải cấu hình từ Google Sheets khi khởi chạy
-        this.loadRemoteConfig();
+        this.user = this.loadUser();
+        this.waitForGoogleAuth();
     }
 
-    async loadRemoteConfig() {
-        if (!this.CONFIG_API_URL || this.CONFIG_API_URL.includes("DÁN_LINK")) return;
-        
-        try {
-            const response = await fetch(this.CONFIG_API_URL);
-            const data = await response.json();
-            
-            if (data.southEmail) this.settings.southEmail = data.southEmail;
-            if (data.northEmail) this.settings.northEmail = data.northEmail;
-            if (data.defaultBccEmail) this.settings.defaultBccEmail = data.defaultBccEmail;
-            
-            // Cập nhật lên UI ngay khi kéo dữ liệu xong
-            if (typeof loadSettingsUI === "function") {
-                loadSettingsUI();
-            }
-        } catch (error) {
-            console.error("Lỗi khi kéo cấu hình từ Google Sheets:", error);
+    waitForGoogleAuth() {
+        if (window.google && window.google.accounts) {
+            this.initGoogleAuth();
+        } else {
+            setTimeout(() => this.waitForGoogleAuth(), 150);
         }
     }
 
-    clearSettings() {
-        this.settings.southEmail = "";
-        this.settings.northEmail = "";
-        this.settings.defaultBccEmail = "";
+    loadUser() {
+        try {
+            const saved = localStorage.getItem("soc_user");
+            return saved ? JSON.parse(saved) : null;
+        } catch (e) { return null; }
     }
 
-    detectRegion(contractId) {
-        if (!contractId) return null;
-        const code = contractId.substring(0, 2).toUpperCase();
-        if (this.settings.southPatterns.includes(code)) return "south";
-        if (this.settings.northPatterns.includes(code)) return "north";
-        return null;
+    saveUser(user) {
+        try { localStorage.setItem("soc_user", JSON.stringify(user)); } catch (e) {}
+        this.user = user;
+        window.dispatchEvent(new CustomEvent("soc_auth_ready", { detail: user }));
     }
 
-    getRegionEmail(region) {
-        if (region === "south") return this.settings.southEmail;
-        if (region === "north") return this.settings.northEmail;
-        return "";
+    logout() {
+        try { localStorage.removeItem("soc_user"); } catch (e) {}
+        this.user = null;
+        if (window.google && window.google.accounts) google.accounts.id.disableAutoSelect();
+        
+        if (typeof regionManager !== "undefined") {
+            regionManager.clearSettings();
+        }
     }
 
-    getSouthPatterns() { return this.settings.southPatterns.join(", "); }
-    getNorthPatterns() { return this.settings.northPatterns.join(", "); }
+    initGoogleAuth() {
+        try {
+            google.accounts.id.initialize({
+                client_id: "764929266866-62ua4ratuu6jimphrullociovmcdmkq9.apps.googleusercontent.com",
+                callback: (response) => this.handleCredentialResponse(response),
+                auto_select: false,
+                cancel_on_tap_outside: false
+            });
+
+            const btn = document.getElementById("googleSignInBtn");
+            if (btn) google.accounts.id.renderButton(btn, { theme: "outline", size: "large", width: "100%" });
+            
+            if (this.isLoggedIn()) {
+                this.showMainInterface();
+            } else {
+                google.accounts.id.prompt(); 
+            }
+        } catch (error) { console.error("Lỗi khởi tạo Google Auth:", error); }
+    }
+
+    handleCredentialResponse(response) {
+        try {
+            const base64Url = response.credential.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+            const userData = JSON.parse(jsonPayload);
+            
+            const user = {
+                name: userData.name,
+                email: userData.email,
+                picture: userData.picture,
+                loginTime: new Date().toISOString(),
+                provider: "google"
+            };
+            
+            this.saveUser(user);
+            this.showMainInterface();
+            
+        } catch (error) { 
+            alert("Lỗi xác thực Google. Vui lòng thử lại!"); 
+        }
+    }
+
+    showMainInterface() {
+        const loginModal = document.getElementById("loginModal");
+        const mainInterface = document.getElementById("mainInterface");
+        
+        if (loginModal) { loginModal.style.setProperty('display', 'none', 'important'); loginModal.classList.add("hidden"); }
+        if (mainInterface) { mainInterface.style.setProperty('display', 'flex', 'important'); mainInterface.classList.remove("hidden"); }
+        
+        this.updateUserDisplay();
+        window.dispatchEvent(new CustomEvent("soc_auth_ready", { detail: this.user }));
+    }
+
+    showLoginModal() {
+        const loginModal = document.getElementById("loginModal");
+        const mainInterface = document.getElementById("mainInterface");
+        
+        if (loginModal) { loginModal.style.setProperty('display', 'flex', 'important'); loginModal.classList.remove("hidden"); }
+        if (mainInterface) { mainInterface.style.setProperty('display', 'none', 'important'); mainInterface.classList.add("hidden"); }
+    }
+
+    updateUserDisplay() {
+        if (!this.user) return;
+        try {
+            const headerTitle = document.getElementById("headerTitle");
+            if (headerTitle) headerTitle.textContent = `${this.user.name} - Dynamic Email Generator`;
+
+            const elementsToUpdateName = ["sidebarUserName", "userNameDisplay"];
+            elementsToUpdateName.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = this.user.name;
+            });
+
+            const elementsToUpdateEmail = ["sidebarUserEmail", "userEmailDisplay"];
+            elementsToUpdateEmail.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = this.user.email;
+            });
+        } catch (e) { console.error("Lỗi cập nhật hiển thị:", e); }
+    }
+
+    isLoggedIn() { return this.user !== null; }
 }
 
-const regionManager = new RegionManager();
+const authManager = new GoogleAuthManager();
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll("#logoutBtn, #btnLogout").forEach(btn => {
+        btn.addEventListener("click", () => {
+            authManager.logout();
+            authManager.showLoginModal();
+        });
+    });
+});
