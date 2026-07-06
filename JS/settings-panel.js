@@ -98,10 +98,10 @@ function disableSettingsEditing() {
             notice.innerHTML = `
                 <div class="flex items-center gap-2 font-bold text-amber-950">
                     <i class="fa-solid fa-user-shield text-base text-amber-600"></i>
-                    <span>THÔNG BÁO QUẢN TRỊ</span>
+                    <span>THÔNG BÁO</span>
                 </div>
                 <p class="text-xs text-amber-800 leading-relaxed">
-                    Các ký tự diện mã Vùng Miền và luồng địa chỉ Email xử lý đã được <strong>khóa cố định cấu hình</strong> để đảm bảo gửi đúng luồng nghiệp vụ.
+                    Các ký tự nhận diện Vùng Miền và địa chỉ Email đã được <strong>khóa cố định cấu hình</strong> để đảm bảo gửi đúng nghiệp vụ.
                 </p>
                 <div class="mt-2 pt-2 border-t border-amber-200/60 text-xs font-semibold text-red-600 flex items-center gap-1.5">
                     <i class="fa-solid fa-circle-exclamation text-sm"></i>
