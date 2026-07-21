@@ -7,11 +7,15 @@
             document.documentElement.setAttribute("data-theme", localStorage.getItem("soc_theme") || "light");
         } catch (e) {}
     </script>
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-WN4FFVFN');</script>
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P091WPTF8N"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-P091WPTF8N');
+    </script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -38,9 +42,7 @@
 
 </head>
 <body class="overflow-x-hidden font-sans">
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WN4FFVFN" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
-    <!-- ================= LOGIN SCREEN (TECH COMMAND CENTER STYLE) ================= -->
     <div id="loginModal" class="fixed inset-0 flex items-center justify-center z-50 login-scene" style="display: flex;">
         <div class="login-bg-grid"></div>
         <div class="login-orb login-orb-1"></div>
@@ -81,13 +83,10 @@
         </div>
     </div>
 
-    <!-- ================= MAIN INTERFACE ================= -->
     <div id="mainInterface" class="hidden flex h-screen overflow-hidden">
 
-        <!-- Lớp phủ tối khi mở menu chức năng trên di động -->
         <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-        <!-- Cột chức năng (Sidebar): Drawer trên mobile / Cố định + có thể thu gọn trên desktop -->
         <aside id="sidebar" class="soc-sidebar flex-col overflow-y-auto">
             <div class="p-6 border-b flex items-center gap-3 sidebar-top" style="border-color: var(--border);">
                 <div class="h-10 w-10 flex-shrink-0 flex items-center justify-center rounded-xl" style="background: var(--surface); border: 1px solid var(--border);">
