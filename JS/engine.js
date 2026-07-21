@@ -441,3 +441,126 @@ function showToast(msg) {
         }, 3000);
     }
 }
+/* ==========================================================================
+   KHỐI MÃ TOÀN DIỆN ĐO LƯỜNG GOOGLE ANALYTICS 4 (GA4) CHO SOC PORTAL
+   (Thêm vào cuối file JS/engine.js - Không chỉnh sửa logic cũ)
+   ========================================================================== */
+document.addEventListener("DOMContentLoaded", () => {
+    // Hàm gửi sự kiện an toàn lên GA4 (tránh lỗi nếu GA4 chưa tải xong)
+    function emitGA4Event(eventName, eventParams) {
+        if (typeof window.gtag === 'function') {
+            window.gtag('event', eventName, eventParams);
+        } else {
+            console.warn('[GA4] Thẻ đo lường chưa sẵn sàng cho sự kiện:', eventName);
+        }
+    }
+
+    // 1. TỰ ĐỘNG COPY TOÀN BỘ VÀ ĐO LƯỜNG KHI CLICK-DOUBLE VÀO DÒNG CC / BCC
+    const attachMailFieldDblClick = (elementId, fieldType) => {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.style.cursor = "pointer"; // Hiển thị con trỏ dạng click để gợi ý cho user
+            element.addEventListener("dblclick", () => {
+                const textValue = element.innerText.trim();
+                if (textValue && textValue !== "Không có" && textValue !== "Chưa có") {
+                    navigator.clipboard.writeText(textValue).then(() => {
+                        // Gửi dữ liệu về GA4
+                        emitGA4Event('copy_mail_field', {
+                            field_type: fieldType,
+                            email_address: textValue,
+                            action: 'double_click_copy'
+                        });
+                        
+                        // Hiệu ứng thông báo nhanh trực quan cho nhân viên
+                        const originalText = element.innerHTML;
+                        element.style.color = "var(--accent)";
+                        element.innerText = "✓ Đã copy toàn bộ!";
+                        setTimeout(() => {
+                            element.style.color = "";
+                            element.innerHTML = originalText;
+                        }, 1200);
+                    }).catch(err => console.error("Lỗi hệ thống khi sao chép:", err));
+                }
+            });
+        }
+    };
+    attachMailFieldDblClick("mailCC", "CC");
+    attachMailFieldDblClick("mailBCC", "BCC");
+
+    // 2. THEO DÕI HÀNH VI TÔ ĐEN RỒI COPY HOẶC CTRL-C TẠI DÒNG SUBJECT
+    const subjectElement = document.getElementById("mailSubject");
+    if (subjectElement) {
+        subjectElement.addEventListener("copy", () => {
+            // Lấy nội dung văn bản đang được bôi đen, nếu không bôi đen thì lấy toàn bộ dòng
+            const selectionText = document.getSelection().toString() || subjectElement.innerText;
+            emitGA4Event('copy_subject_text', {
+                subject_content: selectionText.trim(),
+                action: 'ctrl_c_or_context_menu'
+            });
+        });
+    }
+
+    // 3. ĐO LƯỜNG LƯỢT SỬ DỤNG TEMPLATE KHI CLICK NÚT "COPY NỘI DUNG"
+    const btnCopyContent = document.getElementById("btnCopy");
+    if (btnCopyContent) {
+        btnCopyContent.addEventListener("click", () => {
+            if (typeof currentTemplateId !== "undefined" && currentTemplateId) {
+                const activeTemplate = (window.SOC_TEMPLATES && window.SOC_TEMPLATES[currentTemplateId]) || {};
+                emitGA4Event('use_template', {
+                    template_id: currentTemplateId,
+                    template_name: activeTemplate.name || "Mẫu chưa xác định",
+                    action: 'click_copy_content'
+                });
+            }
+        });
+    }
+
+    // 4. THEO DÕI LƯỢT CLICK NÚT "LÀM MỚI"
+    const btnRefreshForm = document.getElementById("btnRefresh");
+    if (btnRefreshForm) {
+        btnRefreshForm.addEventListener("click", () => {
+            emitGA4Event('click_refresh_button', {
+                action: 'refresh_input_form'
+            });
+        });
+    }
+
+    // 5. GHI NHẬN LƯỢT VIEW KHI NHÂN VIÊN CLICK VÀO TRANG/TAB NÀO
+    // Lắng nghe tất cả các nút bấm chuyển Tab trên thanh Sidebar hệ thống
+    const tabButtons = document.querySelectorAll(".tab-btn, .soc-sidebar .tab-btn");
+    tabButtons.forEach(tabBtn => {
+        tabBtn.addEventListener("click", function() {
+            const pageTitle = this.innerText.trim() || this.id || "Trang không danh tính";
+            const pseudoPath = "/" + pageTitle.toLowerCase().replace(/[^a-z0-9]/g, "_");
+            
+            if (typeof window.gtag === 'function') {
+                window.gtag('event', 'page_view', {
+                    page_title: "Trang: " + pageTitle,
+                    page_path: pseudoPath,
+                    page_location: window.location.origin + window.location.pathname + pseudoPath
+                });
+            }
+        });
+    });
+});
+
+// 6. THEO DÕI ĐĂNG NHẬP GOOGLE VÀ LƯU LẠI ACCOUNT QUA SỰ KIỆN HỆ THỐNG
+window.addEventListener("soc_auth_ready", (event) => {
+    const loggedInUser = event.detail;
+    if (loggedInUser && loggedInUser.email) {
+        if (typeof window.gtag === 'function') {
+            // Thiết lập thuộc tính cấu hình định danh User trên hệ thống GA4
+            window.gtag('set', 'user_properties', {
+                'account_email': loggedInUser.email,
+                'account_name': loggedInUser.name
+            });
+            
+            // Gửi sự kiện log_in kèm chi tiết tài khoản nhân viên thao tác
+            window.gtag('event', 'login', {
+                method: 'Google OAuth 2.0',
+                user_account: loggedInUser.email,
+                user_display_name: loggedInUser.name
+            });
+        }
+    }
+});
