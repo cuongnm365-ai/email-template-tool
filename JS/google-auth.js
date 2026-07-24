@@ -45,7 +45,7 @@ class GoogleAuthManager {
     initGoogleAuth() {
         try {
             google.accounts.id.initialize({
-                client_id: "764929266866-62ua4ratuu6jimphrullociovmcdmkq9.apps.googleusercontent.com",
+                client_id: "714398035986-2jdd33n4h7kguauq73jbirq6rlfpkte2.apps.googleusercontent.com",
                 callback: (response) => this.handleCredentialResponse(response),
                 auto_select: false,
                 cancel_on_tap_outside: false
