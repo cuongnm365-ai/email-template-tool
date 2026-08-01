@@ -2,6 +2,12 @@
    BỘ NÃO XỬ LÝ (ENGINE) - SOC COMMAND CENTER
    Bản cập nhật: Bảo mật DOMPurify, Tracking Google Analytics,
    Format tiền tệ, Fix đồng bộ style cho nội dung sinh động, Fix hiển thị CC/BCC
+   Bản vá (mới nhất): Fix lỗi nội dung email bị đẩy ra giữa khi soạn trên
+   Thunderbird (cửa sổ soạn thư rộng) do khối bọc nội dung dùng
+   "margin: 0 auto" (tự động canh giữa). Đổi thành "margin: 0" để nội dung
+   luôn bắt đầu từ mép trái, không phụ thuộc độ rộng cửa sổ soạn thư.
+   Không ảnh hưởng đến Webmail (khung soạn thư vốn đã hẹp nên trước đây
+   không thấy bị lệch).
    ========================================================= */
 
 const SYSTEM_ASSETS = {
@@ -375,8 +381,14 @@ function copyEmailContent() {
     const content = cloneContent.innerHTML;
     const sig = sigEl ? sigEl.innerHTML : "";
     
+    // FIX: Trước đây dùng "margin: 0 auto" khiến khối nội dung (rộng tối đa 800px)
+    // bị tự động canh GIỮA trong các cửa sổ soạn thư rộng hơn 800px (điển hình là
+    // Thunderbird trên màn hình lớn), làm nội dung trông như bị "đẩy ra giữa".
+    // Trên Webmail thì khung soạn thư vốn đã hẹp (< 800px) nên trước đây không
+    // thấy hiện tượng này. Đổi thành "margin: 0" để nội dung luôn bắt đầu từ
+    // mép trái, đồng nhất trên cả Webmail lẫn Thunderbird.
     const fullHtml = `
-        <div style="font-family: 'Aptos', 'Segoe UI', Arial, sans-serif; font-size: 12pt; color: #2d3748; max-width: 800px; margin: 0 auto; line-height: 1.5;">
+        <div style="font-family: 'Aptos', 'Segoe UI', Arial, sans-serif; font-size: 12pt; color: #2d3748; max-width: 800px; margin: 0; line-height: 1.5;">
             ${content}
             ${sig ? `<br><br>${sig}` : ''}
         </div>
