@@ -8,6 +8,13 @@
    luôn bắt đầu từ mép trái, không phụ thuộc độ rộng cửa sổ soạn thư.
    Không ảnh hưởng đến Webmail (khung soạn thư vốn đã hẹp nên trước đây
    không thấy bị lệch).
+   Bản vá (mới nhất #2): Fix lỗi gõ tiếng Việt bị nhảy chữ/mất chữ khi dùng
+   bộ gõ IME (fcitx5, Unikey...) trên Ubuntu tại các ô có định dạng tự động
+   (viết hoa, viết hoa đầu từ). Nguyên nhân: trước đây code chỉnh sửa value
+   của ô input ngay tại từng ký tự gõ (kể cả khi IME đang trong quá trình
+   ghép chữ), làm phá vỡ bộ đệm ghép chữ của IME. Cách fix: theo dõi sự kiện
+   compositionstart/compositionend, tạm ngưng việc tự động định dạng trong
+   lúc IME đang ghép chữ, chỉ áp dụng định dạng sau khi ghép chữ xong.
    ========================================================= */
 
 const SYSTEM_ASSETS = {
@@ -175,31 +182,34 @@ function renderForm(templateId) {
     formContainer.innerHTML = html;
     
     document.querySelectorAll('.template-input').forEach(input => {
+        // ---- FIX: Theo dõi trạng thái đang gõ chữ qua bộ gõ IME (fcitx5, Unikey...) ----
+        // Khi IME đang trong quá trình ghép chữ (composing) — ví dụ gõ "a" rồi "s" để
+        // ra chữ "á" — TUYỆT ĐỐI không được can thiệp/chỉnh sửa value của ô input,
+        // nếu không dấu tiếng Việt sẽ bị nhảy chữ, mất chữ hoặc sai thứ tự (do IME
+        // dùng bộ đệm ghép chữ riêng, việc ép value/di chuyển con trỏ giữa chừng sẽ
+        // phá vỡ bộ đệm này).
+        input.addEventListener('compositionstart', () => {
+            input.dataset.composing = "1";
+        });
+
+        input.addEventListener('compositionend', () => {
+            input.dataset.composing = "";
+            // Khi gõ xong 1 cụm từ (IME vừa ghép chữ xong), mới áp dụng định dạng
+            // (viết hoa / viết hoa đầu từ / tiền tệ) rồi cập nhật lại email preview
+            applyFieldFormatAndRender(input);
+        });
+
         input.addEventListener('input', (e) => {
             if (e.target.id === "field_staffName") localStorage.setItem("soc_agent_name", e.target.value);
-            
-            let formatAttr = e.target.getAttribute('data-format');
-            if (formatAttr === 'uppercase') {
-                let start = e.target.selectionStart;
-                let end = e.target.selectionEnd;
-                e.target.value = e.target.value.toUpperCase();
-                e.target.setSelectionRange(start, end);
-            } else if (formatAttr === 'titlecase') {
-                let start = e.target.selectionStart;
-                let end = e.target.selectionEnd;
-                e.target.value = e.target.value.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
-                e.target.setSelectionRange(start, end);
-            } else if (formatAttr === 'currency') {
-                let raw = e.target.value.replace(/[^\d]/g, '');
-                if (raw) {
-                    raw = String(parseInt(raw, 10));
-                    e.target.value = Number(raw).toLocaleString('vi-VN');
-                } else {
-                    e.target.value = '';
-                }
-                e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+
+            // Nếu đang trong lúc IME ghép chữ thì bỏ qua bước định dạng ngay lúc này,
+            // chỉ cập nhật email preview với giá trị thô hiện có, tránh phá vỡ IME
+            if (e.target.dataset.composing === "1") {
+                renderEmail();
+                return;
             }
-            renderEmail();
+
+            applyFieldFormatAndRender(e.target);
         });
         
         if(input.tagName === 'SELECT') {
@@ -208,6 +218,34 @@ function renderForm(templateId) {
     });
     
     renderEmail(); 
+}
+
+// ---- FIX: Tách riêng phần định dạng (uppercase/titlecase/currency) ra thành hàm
+// dùng chung, để có thể gọi lại đúng lúc sau khi IME ghép chữ xong (compositionend)
+// thay vì chạy trên từng ký tự gõ như trước đây (gây lỗi với IME tiếng Việt).
+function applyFieldFormatAndRender(target) {
+    let formatAttr = target.getAttribute('data-format');
+    if (formatAttr === 'uppercase') {
+        let start = target.selectionStart;
+        let end = target.selectionEnd;
+        target.value = target.value.toUpperCase();
+        target.setSelectionRange(start, end);
+    } else if (formatAttr === 'titlecase') {
+        let start = target.selectionStart;
+        let end = target.selectionEnd;
+        target.value = target.value.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+        target.setSelectionRange(start, end);
+    } else if (formatAttr === 'currency') {
+        let raw = target.value.replace(/[^\d]/g, '');
+        if (raw) {
+            raw = String(parseInt(raw, 10));
+            target.value = Number(raw).toLocaleString('vi-VN');
+        } else {
+            target.value = '';
+        }
+        target.setSelectionRange(target.value.length, target.value.length);
+    }
+    renderEmail();
 }
 
 function renderEmail() {
