@@ -15,6 +15,21 @@
    ghép chữ), làm phá vỡ bộ đệm ghép chữ của IME. Cách fix: theo dõi sự kiện
    compositionstart/compositionend, tạm ngưng việc tự động định dạng trong
    lúc IME đang ghép chữ, chỉ áp dụng định dạng sau khi ghép chữ xong.
+   Bản vá (mới nhất #3): Thêm "Badge nhận diện khu vực" hiển thị ngay dưới
+   ô Số hợp đồng (field_contractId) — khi nhân viên gõ số hợp đồng, hệ
+   thống tự động nhận diện và hiển thị nổi bật tên khu vực tương ứng.
+   Bản vá (mới nhất #4, đã thay thế bởi #5): Từng thử dùng "position: absolute"
+   cho badge khu vực kèm margin-bottom cố định để bù khoảng trống — cách này
+   không ổn định (margin cố định không đủ khi nội dung badge dài/xuống dòng,
+   gây đè chữ lên field kế tiếp).
+   Bản vá (mới nhất #5): Đổi hẳn sang badge nằm trong LUỒNG BÌNH THƯỜNG (không
+   absolute) + đổi hàng chứa Số hợp đồng sang canh đỉnh (items-start) thay vì
+   canh đáy (items-end). Kết quả: 3 ô Số hợp đồng/SĐT/Địa chỉ luôn ngang hàng
+   nhau ở phía trên bất kể badge có hiện hay không, và khi badge xuất hiện thì
+   layout tự động co giãn đẩy nội dung phía dưới xuống — không cần tính trước
+   khoảng cách, không còn tình trạng đè chữ. Cảnh báo "không nhận diện được
+   khu vực" vẫn nổi bật: nền đỏ đậm, chữ to hơn, nhấp nháy nhẹ (class
+   .region-indicator-warning trong CSS/style.css).
    ========================================================= */
 
 const SYSTEM_ASSETS = {
@@ -88,6 +103,20 @@ function getFieldHtml(field) {
         extraHtml = `<div id="phone_error" style="display: none; color: #dc2626; font-size: 12px; margin-top: 4px; font-weight: 500;">Sai định dạng số ĐT</div>`;
     }
 
+    // FIX #5: Badge nhận diện khu vực nằm trong LUỒNG BÌNH THƯỜNG (không còn
+    // absolute) — tự động đẩy nội dung phía dưới xuống khi xuất hiện, không cần
+    // tính trước khoảng cách. Là 1 khối (div) chứ không phải viên thuốc 1 dòng,
+    // để chữ dài (thông báo cảnh báo) tự xuống dòng gọn trong bề rộng cột, không
+    // tràn ra ngoài hay đè lên nội dung khác. Để 3 ô cùng hàng (VD: Số hợp đồng /
+    // SĐT / Địa chỉ) luôn ngang hàng nhau bất kể badge có hiện hay không, hàng
+    // chứa ô này phải dùng "items-start" (canh đỉnh) thay vì "items-end" — xem
+    // renderForm().
+    if (field.id === "contractId") {
+        extraHtml += `<div id="regionIndicator" class="hidden mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold whitespace-nowrap" style="border: 1px solid transparent; font-size: 11px;">
+            <i class="fa-solid fa-location-dot"></i><span id="regionIndicatorText"></span>
+        </div>`;
+    }
+
     if (field.type === "textarea") {
         return `<textarea id="field_${field.id}" rows="4" class="soc-input template-input w-full" ${formatAttr} placeholder="${field.placeholder || ''}"></textarea>${extraHtml}`;
     } else if (field.type === "select") {
@@ -101,6 +130,46 @@ function getFieldHtml(field) {
     } else {
         return `<input type="text" id="field_${field.id}" class="soc-input template-input w-full" ${formatAttr} placeholder="${field.placeholder || ''}">${extraHtml}`;
     }
+}
+
+// FIX: Hàm cập nhật Badge nhận diện khu vực. Được gọi mỗi khi nội dung ô
+// Số hợp đồng (field_contractId) thay đổi. Dùng chung logic detectRegion
+// với phần tính CC trong displayEmailHeaders() để đảm bảo luôn đồng bộ:
+// badge hiện khu vực nào thì CC cũng sẽ lấy đúng email của khu vực đó.
+// FIX #4: Trạng thái "không nhận diện được" giờ nổi bật rõ rệt hơn — nền đỏ
+// đậm, chữ trắng to hơn, có hiệu ứng nhấp nháy (class .region-indicator-warning
+// định nghĩa trong CSS/style.css) để nhân viên dễ chú ý và kiểm tra lại.
+function updateRegionIndicator(contractId) {
+    const indicator = document.getElementById("regionIndicator");
+    const textEl = document.getElementById("regionIndicatorText");
+    if (!indicator || !textEl || typeof regionManager === "undefined") return;
+
+    const value = (contractId || "").trim();
+
+    if (!value) {
+        indicator.classList.add("hidden");
+        indicator.classList.remove("region-indicator-warning");
+        return;
+    }
+
+    const region = regionManager.detectRegion(value);
+
+    if (region) {
+        textEl.textContent = `Khu vực: ${regionManager.getRegionLabel(region)}`;
+        indicator.classList.remove("region-indicator-warning");
+        indicator.style.background = "var(--success-soft)";
+        indicator.style.color = "var(--success)";
+        indicator.style.borderColor = "var(--success-soft)";
+        indicator.style.fontSize = "11px";
+    } else {
+        textEl.textContent = "⚠ Không nhận diện được khu vực – kiểm tra lại Số hợp đồng!";
+        indicator.classList.add("region-indicator-warning");
+        indicator.style.background = "#DC2626";
+        indicator.style.color = "#FFFFFF";
+        indicator.style.borderColor = "#DC2626";
+        indicator.style.fontSize = "12.5px";
+    }
+    indicator.classList.remove("hidden");
 }
 
 function renderForm(templateId) {
@@ -147,7 +216,16 @@ function renderForm(templateId) {
     if (template.fields) {
         template.fields.forEach(field => {
             if (field.type === "row") {
-                html += `<div class="flex gap-4 mb-4 items-end">`;
+                // FIX #5: Nếu hàng này có ô Số hợp đồng (có thể hiện badge khu vực
+                // bên dưới), canh đỉnh (items-start) thay vì canh đáy (items-end) —
+                // nhờ vậy nhãn + ô nhập của cả 3 cột luôn ngang hàng nhau ở phía trên,
+                // không bị lệch dù cột Số hợp đồng có cao hơn do có thêm badge.
+                // Các hàng khác (VD: hàng chọn nguồn + checkbox SOS) vẫn giữ items-end
+                // như cũ để không ảnh hưởng cách canh đã có.
+                const rowHasContractId = field.fields.some(sub => sub.id === "contractId");
+                const rowAlignCls = rowHasContractId ? "items-start" : "items-end";
+
+                html += `<div class="flex gap-4 mb-4 ${rowAlignCls}">`;
                 field.fields.forEach(sub => {
                     let wCls = sub.width || "flex-1";
                     html += `<div class="${wCls}">`;
@@ -164,6 +242,9 @@ function renderForm(templateId) {
                 });
                 html += `</div>`;
             } else {
+                // Field đứng riêng (không nằm trong "row") vốn đã ở dạng khối
+                // (div thường), badge bên dưới tự động đẩy nội dung tiếp theo
+                // xuống mà không cần xử lý gì thêm.
                 html += `<div class="mb-4">`;
                 if (field.type !== "checkbox") {
                     html += `<label class="soc-label block mb-1">${field.label}:</label>`;
@@ -205,6 +286,7 @@ function renderForm(templateId) {
             // Nếu đang trong lúc IME ghép chữ thì bỏ qua bước định dạng ngay lúc này,
             // chỉ cập nhật email preview với giá trị thô hiện có, tránh phá vỡ IME
             if (e.target.dataset.composing === "1") {
+                if (e.target.id === "field_contractId") updateRegionIndicator(e.target.value);
                 renderEmail();
                 return;
             }
@@ -216,7 +298,11 @@ function renderForm(templateId) {
             input.addEventListener('change', renderEmail);
         }
     });
-    
+
+    // Khởi tạo trạng thái Badge khu vực ngay khi mở form (phòng trường hợp
+    // ô Số hợp đồng đã có sẵn giá trị từ trước, ví dụ sau khi bấm "Làm mới")
+    updateRegionIndicator(document.getElementById("field_contractId")?.value || "");
+
     renderEmail(); 
 }
 
@@ -245,6 +331,10 @@ function applyFieldFormatAndRender(target) {
         }
         target.setSelectionRange(target.value.length, target.value.length);
     }
+
+    // FIX: Cập nhật Badge nhận diện khu vực ngay sau khi định dạng (uppercase) áp dụng
+    if (target.id === "field_contractId") updateRegionIndicator(target.value);
+
     renderEmail();
 }
 
