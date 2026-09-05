@@ -1,8 +1,8 @@
 /* =========================================================
    PANEL CẤU HÌNH & THỐNG KÊ - SOC COMMAND CENTER
-   Bản nâng cấp hoàn chỉnh: Khởi tạo tự động & Ép chuyển Tab
-   Bản cập nhật: Thống kê tổng hợp TẤT CẢ nhân viên (lấy từ Google Sheet qua API GET),
-   thay vì chỉ đếm trên máy/trình duyệt cá nhân (localStorage).
+   Bản cập nhật: Hiển thị ĐỘNG 7 thẻ vùng miền (thay vì 2 thẻ Nam/Bắc
+   cố định trong index.html) — dựa theo regionManager.regionDefs.
+   BCC giữ nguyên logic cũ, không thay đổi.
    ========================================================= */
 
 // Link API Google Apps Script dùng để GHI (POST - trong engine.js) và ĐỌC (GET - tại đây)
@@ -13,25 +13,24 @@ function initSettingsPanel() {
     const tabMainBtn = document.getElementById("tabMain");
     const tabSettingsBtn = document.getElementById("tabSettings");
     const tabStatsBtn = document.getElementById("tabStats");
-    
-    // Gán sự kiện click bằng onclick để đảm bảo ghi đè các hàm cũ bị lỗi
+
     if (tabMainBtn) {
         tabMainBtn.onclick = (e) => { e.preventDefault(); switchTab("main"); };
     }
-    
+
     if (tabSettingsBtn) {
         tabSettingsBtn.onclick = (e) => { e.preventDefault(); switchTab("settings"); };
     }
 
     if (tabStatsBtn) {
-        tabStatsBtn.onclick = (e) => { 
-            e.preventDefault(); 
-            switchTab("stats"); 
-            renderTemplateStatistics(); // Dựng lại dữ liệu mỗi khi mở tab
+        tabStatsBtn.onclick = (e) => {
+            e.preventDefault();
+            switchTab("stats");
+            renderTemplateStatistics();
         };
     }
-    
-    if (typeof authManager !== "undefined" && authManager.isLoggedIn() && typeof regionManager !== "undefined" && regionManager.settings.southEmail !== "") {
+
+    if (typeof authManager !== "undefined" && authManager.isLoggedIn() && typeof regionManager !== "undefined") {
         loadSettingsUI();
     } else {
         window.addEventListener("soc_auth_ready", () => loadSettingsUI());
@@ -39,25 +38,21 @@ function initSettingsPanel() {
 }
 
 function switchTab(tabName) {
-    // 1. Ẩn tất cả các khối nội dung tab
     document.querySelectorAll(".tab-content").forEach(tab => {
         tab.classList.add("hidden");
-        tab.style.display = "none"; // Ép ẩn tuyệt đối
+        tab.style.display = "none";
     });
-    
-    // 2. Gỡ bỏ trạng thái active ở tất cả các nút
+
     document.querySelectorAll(".tab-btn").forEach(btn => {
         btn.classList.remove("active");
     });
-    
-    // 3. Hiện khối nội dung tab được chọn
+
     const activeTab = document.getElementById(tabName + "Tab");
     if (activeTab) {
         activeTab.classList.remove("hidden");
-        activeTab.style.display = "block"; // Ép hiện tuyệt đối
+        activeTab.style.display = "block";
     }
-    
-    // 4. Kích hoạt màu cam cho nút tab tương ứng
+
     const activeBtn = document.getElementById("tab" + tabName.charAt(0).toUpperCase() + tabName.slice(1));
     if (activeBtn) {
         activeBtn.classList.add("active");
@@ -66,28 +61,47 @@ function switchTab(tabName) {
 
 function loadSettingsUI() {
     if (typeof regionManager === "undefined") return;
-    
-    const southEmailInput = document.getElementById("settingsSouthEmail");
-    const northEmailInput = document.getElementById("settingsNorthEmail");
+
     const bccEmailInput = document.getElementById("settingsBccEmail");
-    const southPatterns = document.getElementById("settingsSouthPatterns");
-    const northPatterns = document.getElementById("settingsNorthPatterns");
-    
-    if (southEmailInput) southEmailInput.value = regionManager.settings.southEmail || "";
-    if (northEmailInput) northEmailInput.value = regionManager.settings.northEmail || "";
     if (bccEmailInput) bccEmailInput.value = regionManager.settings.defaultBccEmail || "";
-    if (southPatterns) southPatterns.value = regionManager.getSouthPatterns ? regionManager.getSouthPatterns() : "";
-    if (northPatterns) northPatterns.value = regionManager.getNorthPatterns ? regionManager.getNorthPatterns() : "";
-    
+
+    renderRegionSettingsCards();
     disableSettingsEditing();
 }
 
-function disableSettingsEditing() {
-    const inputs = ["settingsSouthEmail", "settingsNorthEmail", "settingsBccEmail", "settingsSouthPatterns", "settingsNorthPatterns"];
-    inputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.disabled = true;
+// Dựng động 7 thẻ vùng miền (Email + Ký tự nhận diện) vào khung
+// #regionSettingsGrid có sẵn trong index.html — không cần sửa HTML mỗi khi
+// đổi số lượng/tên vùng miền, chỉ cần sửa regionDefs trong region-detector.js.
+function renderRegionSettingsCards() {
+    const container = document.getElementById("regionSettingsGrid");
+    if (!container || typeof regionManager === "undefined") return;
+
+    let html = "";
+    regionManager.regionDefs.forEach(r => {
+        const emailValue = regionManager.settings[r.key + "Email"] || "";
+        html += `
+            <div class="settings-card p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="settings-icon" style="background: var(--success-soft); color: var(--success);">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
+                    <h3 class="font-display text-lg font-bold" style="color: var(--text);">${r.label}</h3>
+                </div>
+                <label class="soc-label">Email khu vực:</label>
+                <input type="text" id="settings_${r.key}Email" class="soc-input w-full mb-4" value="${emailValue}" placeholder="Chưa cấu hình trên Google Sheet" disabled>
+                <label class="soc-label">Ký tự nhận diện:</label>
+                <input type="text" id="settings_${r.key}Patterns" class="soc-input w-full font-mono" value="${r.patterns.join(', ')}" disabled>
+            </div>
+        `;
     });
+    container.innerHTML = html;
+}
+
+function disableSettingsEditing() {
+    const bccInput = document.getElementById("settingsBccEmail");
+    if (bccInput) bccInput.disabled = true;
+    // Các ô Email/Ký tự nhận diện theo từng vùng miền đã được render ở trạng thái
+    // disabled sẵn trong renderRegionSettingsCards(), không cần xử lý thêm ở đây.
 
     if (!document.getElementById("adminLockNotice")) {
         const container = document.querySelector("#settingsTab > .grid") || document.getElementById("settingsTab");
@@ -108,17 +122,16 @@ function disableSettingsEditing() {
                     <span>Nếu cần điều chỉnh, vui lòng liên hệ trực tiếp với <strong>Admin</strong>.</span>
                 </div>
             `;
-            // Chèn xuống cuối
-            if(container.parentNode) container.parentNode.appendChild(notice);
+            if (container.parentNode) container.parentNode.appendChild(notice);
         }
     }
 }
 
 /* =========================================================
    MÔ-ĐUN: THỐNG KÊ TẦN SUẤT SỬ DỤNG MẪU EMAIL (TỔNG HỢP TẤT CẢ NHÂN VIÊN)
+   (Không thay đổi so với bản trước)
    ========================================================= */
 
-// Bước 1: Hiện trạng thái đang tải, rồi gọi API GET lấy số liệu tổng hợp từ Google Sheet
 function renderTemplateStatistics() {
     const container = document.getElementById("statsTabContent");
     if (!container) return;
@@ -152,7 +165,6 @@ function renderTemplateStatistics() {
         });
 }
 
-// Bước 2: Dựng bảng xếp hạng dựa trên dữ liệu tổng hợp (remoteStats) lấy được từ Sheet
 function renderStatsTable(remoteStats, totalUsage) {
     const container = document.getElementById("statsTabContent");
     if (!container) return;
@@ -160,8 +172,6 @@ function renderStatsTable(remoteStats, totalUsage) {
     const templates = window.SOC_TEMPLATES || {};
     let rowsHtml = "";
 
-    // Gộp danh sách mẫu email hiện có trong tool với số liệu tổng hợp từ Sheet,
-    // để mẫu nào chưa từng được dùng vẫn hiển thị với 0 lượt.
     const sortedTemplates = Object.keys(templates).map(id => {
         return {
             id: id,
@@ -177,7 +187,7 @@ function renderStatsTable(remoteStats, totalUsage) {
 
     sortedTemplates.forEach((item, index) => {
         const percentage = totalUsage > 0 ? ((item.count / totalUsage) * 100).toFixed(1) : 0;
-        
+
         rowsHtml += `
             <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
                 <td class="p-4 text-center font-medium text-slate-400 text-xs">${index + 1}</td>
@@ -245,7 +255,6 @@ function renderStatsTable(remoteStats, totalUsage) {
     `;
 }
 
-// Bắt buộc hệ thống tự động chạy hàm khởi tạo ngay sau khi nạp xong giao diện
 document.addEventListener("DOMContentLoaded", () => {
     initSettingsPanel();
 });
