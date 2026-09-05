@@ -4,7 +4,6 @@
    theo nghiệp vụ CSKH mới. Ký tự nhận diện vẫn hardcode trong file này
    (không tải từ Sheet), CHỈ có Email từng vùng là tải từ Google Sheet
    qua CONFIG_API_URL — giữ đúng nguyên tắc cũ.
-<<<<<<< HEAD
    Bản vá mới nhất: Bổ sung mã "SG" (Sài Gòn) vào nhóm Hồ Chí Minh, vì
    Số hợp đồng thực tế của khu vực HCM đang dùng tiền tố "SG" chứ không
    phải "HCM" — trước đây khai báo thiếu khiến CC không nhận diện được
@@ -18,8 +17,8 @@ class RegionManager {
         // DÁN LINK API CẤU HÌNH (SHEET 1) VÀO ĐÂY:
         this.CONFIG_API_URL = "https://script.google.com/macros/s/AKfycbyPnMb6B_t5Gv_7K0PtbYWpZVNuoPZZC5KkQ4roe1HbkM8LmkrX2TSMr8HRvPzH3I6y4A/exec";
 
-<<<<<<< HEAD
-        // Danh sách 7 vùng miền + ký tự nhận diện (2-3 ký tự đầu Số hợp đồng).
+        // Danh sách 7 vùng miền + ký tự nhận diện (2-3 ký tự đầu Số hợp đồng,
+        // riêng Hà Nội và Hồ Chí Minh dùng mã dài hơn "HN" / "HCM").
 =======
         // Danh sách 7 vùng miền + ký tự nhận diện (2 ký tự đầu Số hợp đồng,
         // riêng Hà Nội và Hồ Chí Minh dùng mã dài hơn "HN" / "HCM").
@@ -28,7 +27,6 @@ class RegionManager {
         // và cũng chính là "key" cột A tương ứng trên Google Sheet cấu hình.
         this.regionDefs = [
             { key: "hn", label: "Hà Nội", patterns: ["HN"] },
-<<<<<<< HEAD
             { key: "hcm", label: "Hồ Chí Minh", patterns: ["HCM", "SG"] },
 =======
             { key: "hcm", label: "Hồ Chí Minh", patterns: ["SG"] },
